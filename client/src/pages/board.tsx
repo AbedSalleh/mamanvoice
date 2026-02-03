@@ -25,6 +25,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SymbolPicker } from "@/components/symbol-picker";
 import { toast } from "sonner";
 
 type CardType = "speak" | "folder";
@@ -610,52 +612,66 @@ function CardEditorModal({
                 Image
               </div>
               <div className="rounded-2xl border bg-card p-4">
-                <div className="flex items-center gap-3">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="h-12 rounded-2xl"
-                    onClick={() => document.getElementById("image-input")?.click()}
-                    data-testid="button-pick-image"
-                  >
-                    <Upload className="h-5 w-5" />
-                    Choose
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="h-12 rounded-2xl"
-                    disabled={!image}
-                    onClick={() => setImage(null)}
-                    data-testid="button-clear-image"
-                  >
-                    Clear
-                  </Button>
-                </div>
-                <input
-                  id="image-input"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) setImage(f);
-                    e.currentTarget.value = "";
-                  }}
-                  data-testid="input-image"
-                />
+                <Tabs defaultValue="library" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-4">
+                    <TabsTrigger value="library">Library</TabsTrigger>
+                    <TabsTrigger value="upload">Upload</TabsTrigger>
+                  </TabsList>
 
-                <div className="mt-4">
+                  <TabsContent value="upload" className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="h-12 rounded-2xl flex-1"
+                        onClick={() => document.getElementById("image-input")?.click()}
+                        data-testid="button-pick-image"
+                      >
+                        <Upload className="h-5 w-5 mr-2" />
+                        Choose File
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="h-12 rounded-2xl px-3"
+                        disabled={!image}
+                        onClick={() => setImage(null)}
+                        data-testid="button-clear-image"
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                    <input
+                      id="image-input"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) setImage(f);
+                        e.currentTarget.value = "";
+                      }}
+                      data-testid="input-image"
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="library">
+                    <SymbolPicker onSelect={setImage} />
+                  </TabsContent>
+                </Tabs>
+
+                <div className="mt-4 pt-4 border-t">
+                  <div className="text-xs font-semibold text-muted-foreground mb-2">PREVIEW</div>
                   {imgUrl ? (
                     <img
                       src={imgUrl}
                       alt="Preview"
-                      className="w-full aspect-[4/3] object-cover rounded-2xl border"
+                      className="w-full aspect-[4/3] object-contain rounded-xl border bg-white"
                       data-testid="img-preview"
                     />
                   ) : (
                     <div
-                      className="w-full aspect-[4/3] rounded-2xl border bg-muted/30 grid place-items-center text-sm text-muted-foreground"
+                      className="w-full aspect-[4/3] rounded-xl border bg-muted/30 grid place-items-center text-sm text-muted-foreground"
                       data-testid="text-no-image"
                     >
                       No image selected
