@@ -245,7 +245,7 @@ function AACCardButton({
             "bg-white/60 border border-black/5",
             "overflow-hidden",
             "grid place-items-center",
-            "aspect-[4/3]",
+            "aspect-square",
           )}
           data-testid={`imgwrap-${card.id}`}
         >
@@ -677,14 +677,14 @@ function CardEditorModal({
                     <img
                       src={imgUrl}
                       alt={t("upload.alt")}
-                      className="w-full aspect-[4/3] object-contain rounded-xl border bg-white"
+                      className="w-full aspect-square object-contain rounded-xl border bg-white"
                       loading="eager"
                       decoding="async"
                       data-testid="img-preview"
                     />
                   ) : (
                     <div
-                      className="w-full aspect-[4/3] rounded-xl border bg-muted/30 grid place-items-center text-sm text-muted-foreground"
+                      className="w-full aspect-square rounded-xl border bg-muted/30 grid place-items-center text-sm text-muted-foreground"
                       data-testid="text-no-image"
                     >
                       {t("upload.no_image")}
@@ -901,24 +901,26 @@ export default function BoardPage() {
   const handleOpen = async (card: CardRecord) => {
     if (isEditMode) return;
 
-    if (card.type === "folder") {
-      setLocation(`/folder/${card.id}`);
-      return;
-    }
-
+    // Play Audio or TTS (for both Folders and Cards)
     if (card.audio) {
       const url = URL.createObjectURL(card.audio);
       try {
         const audio = new Audio(url);
         audio.volume = 1;
-        await audio.play();
+        // We don't await here to prevent blocking navigation if audio fails or lags
+        audio.play().catch(() => { });
       } finally {
-        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        // Keep the URL alive long enough for playback to start
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
       }
-      return;
+    } else {
+      speakFallback(card.label);
     }
 
-    speakFallback(card.label);
+    // Navigate if folder
+    if (card.type === "folder") {
+      setLocation(`/folder/${card.id}`);
+    }
   };
 
   const openAdd = () => {
@@ -1156,7 +1158,7 @@ export default function BoardPage() {
 
         <main className="mt-5" data-testid="main">
           <div
-            className={cn("grid gap-4", "grid-cols-2", "sm:grid-cols-3", "md:grid-cols-4")}
+            className={cn("grid gap-4", "grid-cols-2", "sm:grid-cols-3", "md:grid-cols-4", "lg:grid-cols-4", "xl:grid-cols-4")}
             data-testid="grid-cards"
           >
             {(ordered ?? []).map((c) => (
