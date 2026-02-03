@@ -46,15 +46,15 @@ export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
 
     if (!enabled) {
         return (
-            <div className="flex flex-col items-center justify-center p-8 text-center bg-muted/20 rounded-2xl border-2 border-dashed">
-                <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                    <DownloadCloud className="h-6 w-6 text-primary" />
+            <div className="flex flex-col items-center justify-center p-4 text-center bg-muted/20 rounded-2xl border-2 border-dashed">
+                <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                    <DownloadCloud className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold">Smart Symbol Library</h3>
-                <p className="text-sm text-muted-foreground max-w-[280px] mb-6">
+                <h3 className="text-base font-semibold">Smart Symbol Library</h3>
+                <p className="text-xs text-muted-foreground max-w-[240px] mb-4">
                     Download a library of common AAC symbols to use offline (approx 10KB).
                 </p>
-                <Button onClick={() => setEnabled(true)} className="rounded-xl">
+                <Button onClick={() => setEnabled(true)} size="sm" className="rounded-xl h-9">
                     Enable Library
                 </Button>
             </div>
@@ -90,7 +90,7 @@ export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
                 />
             </div>
 
-            <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 max-h-[240px] overflow-y-auto pr-1">
+            <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 max-h-[180px] overflow-y-auto pr-1">
                 {filtered?.map((s) => (
                     <button
                         key={s.name}
