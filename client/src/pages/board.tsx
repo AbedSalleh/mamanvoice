@@ -1045,8 +1045,8 @@ export default function BoardPage() {
           <div className="flex items-center gap-2">
             {isEditMode ? (
               <>
-                <span className="text-xs text-muted-foreground hidden md:inline-block mr-2" data-testid="text-toolbar-help">
-                  Tip: in Child Mode, tapping cards speaks immediately.
+                <span className="text-xs text-destructive font-medium hidden md:inline-block mr-3 text-right">
+                  Warning: Data is saved LOCALLY. Export backup (in Settings) to save progress.
                 </span>
                 <Button
                   type="button"
