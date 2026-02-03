@@ -18,6 +18,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -168,7 +169,7 @@ function AACCardButton({
   const isFolder = card.type === "folder";
 
   return (
-    <div
+    <motion.div
       className={cn(
         "group relative",
         "rounded-[28px] aac-card-shadow",
@@ -177,9 +178,10 @@ function AACCardButton({
         "overflow-hidden",
       )}
       data-testid={`card-${card.id}`}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
     >
       <button
-        type="button"
         onClick={onOpen}
         className={cn(
           "w-full h-full",
@@ -327,7 +329,7 @@ function AACCardButton({
           </button>
         </div>
       ) : null}
-    </div>
+    </motion.div>
   );
 }
 
@@ -902,15 +904,15 @@ export default function BoardPage() {
     for (const c of all) {
       const image = c.image
         ? {
-            base64: await blobToBase64(c.image),
-            type: c.image.type || "application/octet-stream",
-          }
+          base64: await blobToBase64(c.image),
+          type: c.image.type || "application/octet-stream",
+        }
         : null;
       const audio = c.audio
         ? {
-            base64: await blobToBase64(c.audio),
-            type: c.audio.type || "application/octet-stream",
-          }
+          base64: await blobToBase64(c.audio),
+          type: c.audio.type || "application/octet-stream",
+        }
         : null;
       cardsForBackup.push({
         id: c.id,
@@ -979,11 +981,18 @@ export default function BoardPage() {
     if (!folderId) return "MamanVoice";
     return currentFolder?.label ?? "Folder";
   }, [currentFolder, folderId]);
+  const isRoot = !folderId;
 
   return (
-    <div className="min-h-screen bg-background aac-noise">
-      <div className="aac-safe-area">
-        <header className="flex items-center justify-between gap-3" data-testid="header">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ duration: 0.2 }}
+      className="min-h-screen bg-background p-4 sm:p-6"
+    >
+      <div className="mx-auto max-w-7xl">
+        <header className="mb-6 sm:mb-8 flex items-center justify-between gap-3" data-testid="header">
           <div className="flex items-center gap-3">
             {folderId ? (
               <Button
@@ -1119,6 +1128,6 @@ export default function BoardPage() {
           }}
         />
       </div>
-    </div>
+    </motion.div>
   );
 }
