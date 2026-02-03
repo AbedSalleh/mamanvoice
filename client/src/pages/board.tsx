@@ -500,8 +500,13 @@ function SettingsModal({
 
           <Separator />
 
-          <div className="text-sm text-muted-foreground" data-testid="text-settings-help">
-            Tip: keep your backup file somewhere safe (Google Drive, email, etc.).
+          <div className="space-y-2">
+            <div className="text-sm text-muted-foreground" data-testid="text-settings-help">
+              Tip: keep your backup file somewhere safe (Google Drive, email, etc.).
+            </div>
+            <div className="text-xs text-muted-foreground/50 text-center pt-2">
+              Pictograms by Mulberry Symbols (CC-BY-SA)
+            </div>
           </div>
         </div>
       </DialogContent>
