@@ -570,46 +570,7 @@ function CardEditorModal({
             />
           </div>
 
-          <div className="space-y-2">
-            <div className="font-semibold" data-testid="text-type-title">
-              Type
-            </div>
-            <RadioGroup
-              value={type}
-              onValueChange={(v) => setType(v as CardType)}
-              className="grid grid-cols-2 gap-3"
-              data-testid="radio-type"
-            >
-              <label
-                className={cn(
-                  "rounded-2xl border bg-card p-4",
-                  "flex items-center justify-between",
-                  "cursor-pointer",
-                )}
-                data-testid="option-speak"
-              >
-                <div>
-                  <div className="font-semibold">Speak</div>
-                  <div className="text-sm text-muted-foreground">Plays audio (or TTS)</div>
-                </div>
-                <RadioGroupItem value="speak" data-testid="radio-speak" />
-              </label>
-              <label
-                className={cn(
-                  "rounded-2xl border bg-card p-4",
-                  "flex items-center justify-between",
-                  "cursor-pointer",
-                )}
-                data-testid="option-folder"
-              >
-                <div>
-                  <div className="font-semibold">Folder</div>
-                  <div className="text-sm text-muted-foreground">Opens a category</div>
-                </div>
-                <RadioGroupItem value="folder" data-testid="radio-folder" />
-              </label>
-            </RadioGroup>
-          </div>
+
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
@@ -686,12 +647,55 @@ function CardEditorModal({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="font-semibold" data-testid="text-audio-title">
-                Audio
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <div className="font-semibold" data-testid="text-type-title">
+                  Type
+                </div>
+                <RadioGroup
+                  value={type}
+                  onValueChange={(v) => setType(v as CardType)}
+                  className="grid grid-cols-1 gap-3"
+                  data-testid="radio-type"
+                >
+                  <label
+                    className={cn(
+                      "rounded-2xl border bg-card p-4",
+                      "flex items-center justify-between",
+                      "cursor-pointer",
+                    )}
+                    data-testid="option-speak"
+                  >
+                    <div>
+                      <div className="font-semibold">Speak</div>
+                      <div className="text-sm text-muted-foreground">Plays audio (or TTS)</div>
+                    </div>
+                    <RadioGroupItem value="speak" data-testid="radio-speak" />
+                  </label>
+                  <label
+                    className={cn(
+                      "rounded-2xl border bg-card p-4",
+                      "flex items-center justify-between",
+                      "cursor-pointer",
+                    )}
+                    data-testid="option-folder"
+                  >
+                    <div>
+                      <div className="font-semibold">Folder</div>
+                      <div className="text-sm text-muted-foreground">Opens a category</div>
+                    </div>
+                    <RadioGroupItem value="folder" data-testid="radio-folder" />
+                  </label>
+                </RadioGroup>
               </div>
-              <div className="rounded-2xl border bg-card p-4">
-                <Recorder value={audio} onChange={setAudio} />
+
+              <div className="space-y-2">
+                <div className="font-semibold" data-testid="text-audio-title">
+                  Audio
+                </div>
+                <div className="rounded-2xl border bg-card p-4">
+                  <Recorder value={audio} onChange={setAudio} />
+                </div>
               </div>
             </div>
           </div>
