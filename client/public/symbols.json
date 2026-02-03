@@ -1,102 +1,469 @@
 [
   {
     "name": "Apple",
-    "tags": ["food", "fruit", "red", "snack"],
+    "tags": [
+      "food",
+      "fruit",
+      "red",
+      "snack"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z'/><path d='M10 2c1 .5 2 2 2 5'/></svg>"
   },
   {
     "name": "Banana",
-    "tags": ["food", "fruit", "yellow", "snack"],
+    "tags": [
+      "food",
+      "fruit",
+      "yellow",
+      "snack"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 13c3.5-2 8-2 10 2a5.55 5.55 0 0 1 8 5'/><path d='M5.15 17a9 9 0 1 0 17.77-4.43'/><path d='M5 13a6 6 0 0 1 6-6H9l-2 3'/><path d='M1 8h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z'/></svg>"
   },
   {
     "name": "Cookie",
-    "tags": ["food", "snack", "sweet", "dessert"],
+    "tags": [
+      "food",
+      "snack",
+      "sweet",
+      "dessert"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5'/><path d='M8.5 8.5v.01'/><path d='M16 15.5v.01'/><path d='M12 12v.01'/><path d='M11 17v.01'/><path d='M7 14v.01'/></svg>"
   },
   {
     "name": "Milk",
-    "tags": ["drink", "dairy", "white", "liquid"],
+    "tags": [
+      "drink",
+      "dairy",
+      "white",
+      "liquid"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M8 2h8'/><path d='M9 2v4h6V2'/><path d='M6 8h12a1 1 0 0 1 1 1v10a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V9a1 1 0 0 1 1-1Z'/><path d='M10 14v4'/><path d='M14 14v4'/></svg>"
   },
   {
     "name": "Water",
-    "tags": ["drink", "liquid", "thirsty"],
+    "tags": [
+      "drink",
+      "liquid",
+      "thirsty"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M7 21h10'/><path d='M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z'/><path d='M11.38 12a2.4 2.4 0 0 1-.4-4.77 2.4 2.4 0 0 1 3.2-2.77 2.4 2.4 0 0 1 3.47-.63 2.4 2.4 0 0 1 3.37 3.37 2.4 2.4 0 0 1-1.1 3.7 2.51 2.51 0 0 1 .14 1.1'/></svg>"
   },
   {
+    "name": "Juice",
+    "tags": [
+      "drink",
+      "liquid",
+      "fruit",
+      "cup"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M17 8h1a4 4 0 1 1 0 8h-1'/><path d='M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z'/><line x1='6' x2='6' y1='2' y2='8'/><line x1='10' x2='10' y1='2' y2='8'/><line x1='14' x2='14' y1='2' y2='8'/></svg>"
+  },
+  {
+    "name": "Pizza",
+    "tags": [
+      "food",
+      "snack",
+      "dinner",
+      "lunch"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 11h.01'/><path d='M11 15h.01'/><path d='M16 16h.01'/><path d='m2 16 20 6-6-20A20 20 0 0 0 2 16'/><path d='M5.71 17.11a17.04 17.04 0 0 1 11.4-11.4'/></svg>"
+  },
+  {
+    "name": "Sandwich (Burger)",
+    "tags": [
+      "food",
+      "lunch",
+      "dinner",
+      "burger"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3'/><path d='M12 19H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-3.83'/><path d='m15 19-3 3-3-3'/><path d='M19.74 7.33A5.04 5.04 0 0 0 12 5a5 5 0 0 0-7.74 2.33C4.1 7.6 4.04 8 4.09 9c.1 2 2.38 2 2.38 2h11s2.33 0 2.45-2c.07-1.15-.02-1.46-.18-1.67Z'/></svg>"
+  },
+  {
+    "name": "Ice Cream",
+    "tags": [
+      "food",
+      "dessert",
+      "cold",
+      "sweet"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m7 11 4.08 10.35a1 1 0 0 0 1.84 0L17 11'/><path d='M17 7A5 5 0 0 0 7 7'/><path d='M17 7a2 2 0 0 1 0 4H7a2 2 0 0 1 0-4'/></svg>"
+  },
+  {
+    "name": "Cake",
+    "tags": [
+      "food",
+      "dessert",
+      "party",
+      "birthday"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8'/><path d='M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1'/><path d='M2 21h20'/><path d='M7 8v2'/><path d='M12 8v2'/><path d='M17 8v2'/><path d='M7 4h.01'/><path d='M12 4h.01'/><path d='M17 4h.01'/></svg>"
+  },
+  {
     "name": "Bed (Sleep)",
-    "tags": ["sleep", "rest", "tired", "furniture"],
+    "tags": [
+      "sleep",
+      "rest",
+      "tired",
+      "furniture"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 4v16'/><path d='M2 8h18a2 2 0 0 1 2 2v10'/><path d='M2 17h20'/><path d='M6 8v9'/></svg>"
   },
   {
+    "name": "Toilet",
+    "tags": [
+      "bathroom",
+      "potty",
+      "go"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M7 12h10'/><path d='M20 20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 10 10 0 0 1 20 0Z'/><path d='M4 22v-3'/><path d='M20 22v-3'/><path d='M9 4V2h6v2'/><path d='M8 12V4h8v8'/></svg>"
+  },
+  {
+    "name": "Bath (Shower)",
+    "tags": [
+      "clean",
+      "wash",
+      "bathroom"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 6 6.5 3.5a1.5 1.5 0 0 0-1-1.5'/><path d='M15 6l2.5-2.5a1.5 1.5 0 0 1 1-1.5'/><path d='M21 21H3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h18a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2Z'/><path d='M12 14v-2'/></svg>"
+  },
+  {
+    "name": "Wash Hands",
+    "tags": [
+      "clean",
+      "bathroom",
+      "sink"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7'/><path d='M8 2v5'/><path d='M16 2v5'/><path d='M12 2v5'/></svg>"
+  },
+  {
+    "name": "Toothbrush",
+    "tags": [
+      "clean",
+      "teeth",
+      "bathroom"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m2 22 2-2'/><path d='m7 17 2-2'/><path d='m20 2-4.14 4.14a2 2 0 0 0 0 2.82l-7.37 7.38a2 2 0 0 0 0 2.82L10 20.6'/><path d='m16 6 2 2'/></svg>"
+  },
+  {
     "name": "Car",
-    "tags": ["vehicle", "drive", "travel", "go"],
+    "tags": [
+      "vehicle",
+      "drive",
+      "travel",
+      "go"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2'/><circle cx='7' cy='17' r='2'/><path d='M9 17h6'/><circle cx='17' cy='17' r='2'/></svg>"
   },
   {
+    "name": "Bus",
+    "tags": [
+      "vehicle",
+      "travel",
+      "school",
+      "go"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M8 6v6'/><path d='M15 6v6'/><path d='M2 12h19.6'/><path d='M18 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/><path d='M15 21v-2'/><path d='M8 21v-2'/><path d='M19 17h2.4a2 2 0 0 0 2-2v-4'/><path d='M2 11V7a2 2 0 0 1 2-2h15a2 2 0 0 1 2 2v4'/></svg>"
+  },
+  {
+    "name": "Bike",
+    "tags": [
+      "play",
+      "ride",
+      "go",
+      "toys"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='5.5' cy='17.5' r='3.5'/><circle cx='18.5' cy='17.5' r='3.5'/><path d='M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2'/></svg>"
+  },
+  {
+    "name": "Walk (Go)",
+    "tags": [
+      "move",
+      "outside",
+      "feet"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m13 4 1 2.5a4 4 0 0 1 0 3l-1 5'/><path d='M6 14s.5-3.5 3-4.5 4-1 6 .5 3 4.5 3 4.5'/><path d='m11 11.5-1 6'/></svg>"
+  },
+  {
+    "name": "Run",
+    "tags": [
+      "fast",
+      "play",
+      "move",
+      "outside"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m15 13-1 4-3 1'/><path d='m19 10-2.5 3.5L14 16l-3-1-1-3'/><path d='M6 10 4 7 2 9'/><path d='m9 10 3-4-2.5-3.5'/><circle cx='8' cy='4' r='2'/></svg>"
+  },
+  {
     "name": "Cat",
-    "tags": ["animal", "pet", "kitten"],
+    "tags": [
+      "animal",
+      "pet",
+      "kitten"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21S3 17.9 3 13.44c0-1.2.43-2.37 1-3.44 0 0-1.82-6.42-.42-7 1.39-.58 4.64.26 6.42 2.26.65-.17 1.33-.26 2-.26Z'/><path d='M9 13h.01'/><path d='M15 13h.01'/></svg>"
   },
   {
     "name": "Dog",
-    "tags": ["animal", "pet", "puppy"],
+    "tags": [
+      "animal",
+      "pet",
+      "puppy"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 5.172C10 3.782 8.423 2.679 6.5 3c-2.823.47-4.113 4.916-5 7 6.667-1.667 13.333-1.667 20 0-.887-2.084-2.177-6.53-5-7-1.923-.321-3.5 .782-3.5 2.172v.328c0 .884-.96 1.5-2 1.5s-2-.616-2-1.5v-.328Z'/><path d='M13 14H6a2 2 0 0 1-2-2v-2'/><path d='M6 14v8'/><path d='M13 22v-3.5'/><path d='M18 14v8'/><path d='M22 10v4a2 2 0 0 1-2 2h-2'/></svg>"
   },
   {
+    "name": "Bird",
+    "tags": [
+      "animal",
+      "fly",
+      "sky"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M16 7h.01'/><path d='M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20'/><path d='m20 7 2 .5-2 .5'/><path d='M10 18v3'/><path d='M14 17.75V21'/><path d='M7 18a6 6 0 0 0 3.84-10.61'/></svg>"
+  },
+  {
     "name": "Home",
-    "tags": ["house", "building", "place"],
+    "tags": [
+      "house",
+      "building",
+      "place"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>"
   },
   {
     "name": "School",
-    "tags": ["learn", "place", "building", "bus"],
+    "tags": [
+      "learn",
+      "place",
+      "building",
+      "bus"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m4 6 8-4 8 4'/><path d='m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2'/><path d='M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4'/><path d='M18 5v17'/><path d='M6 5v17'/><circle cx='12' cy='9' r='2'/></svg>"
   },
   {
     "name": "Park",
-    "tags": ["play", "outside", "tree", "swing"],
+    "tags": [
+      "play",
+      "outside",
+      "tree",
+      "swing"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22v-9'/><path d='M5 22V7a5 5 0 0 1 10 0v15'/><path d='M15 12a3 3 0 0 0 0-6H9'/></svg>"
   },
   {
     "name": "Smile (Happy)",
-    "tags": ["emotion", "feeling", "good"],
+    "tags": [
+      "emotion",
+      "feeling",
+      "good"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M8 14s1.5 2 4 2 4-2 4-2'/><line x1='9' y1='9' x2='9.01' y2='9'/><line x1='15' y1='9' x2='15.01' y2='9'/></svg>"
   },
   {
     "name": "Frown (Sad)",
-    "tags": ["emotion", "feeling", "bad"],
+    "tags": [
+      "emotion",
+      "feeling",
+      "bad"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M16 16s-1.5-2-4-2-4 2-4 2'/><line x1='9' y1='9' x2='9.01' y2='9'/><line x1='15' y1='9' x2='15.01' y2='9'/></svg>"
   },
   {
+    "name": "Angry",
+    "tags": [
+      "emotion",
+      "feeling",
+      "mad",
+      "bad"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M16 16s-1.5-2-4-2-4 2-4 2'/><path d='M7.5 8 10 9'/><path d='m14 9 2.5-1'/><path d='M9 10h0'/><path d='M15 10h0'/></svg>"
+  },
+  {
     "name": "T-Shirt (Clothes)",
-    "tags": ["wear", "dress", "shirt"],
+    "tags": [
+      "wear",
+      "dress",
+      "shirt"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z'/></svg>"
   },
   {
     "name": "Ball (Play)",
-    "tags": ["toy", "game", "sport"],
+    "tags": [
+      "toy",
+      "game",
+      "sport"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20'/><path d='M2 12h20'/></svg>"
   },
   {
     "name": "Book (Read)",
-    "tags": ["story", "school", "learn"],
+    "tags": [
+      "story",
+      "school",
+      "learn"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20'/></svg>"
   },
   {
-    "name": "Toilet",
-    "tags": ["bathroom", "potty", "go"],
-    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M7 12h10'/><path d='M20 20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 10 10 0 0 1 20 0Z'/><path d='M4 22v-3'/><path d='M20 22v-3'/><path d='M9 4V2h6v2'/><path d='M8 12V4h8v8'/></svg>"
-  },
-   {
     "name": "Yes (Check)",
-    "tags": ["good", "correct", "agree"],
+    "tags": [
+      "good",
+      "correct",
+      "agree"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg>"
   },
-   {
+  {
     "name": "No (X)",
-    "tags": ["bad", "wrong", "stop", "disagree"],
+    "tags": [
+      "bad",
+      "wrong",
+      "stop",
+      "disagree"
+    ],
     "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='m15 9-6 6'/><path d='m9 9 6 6'/></svg>"
+  },
+  {
+    "name": "Dad (Man)",
+    "tags": [
+      "people",
+      "family",
+      "man"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='7' r='4'/><path d='M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2'/></svg>"
+  },
+  {
+    "name": "Mom (Woman)",
+    "tags": [
+      "people",
+      "family",
+      "woman"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='7' r='4'/><path d='M5.5 21v-2a6.5 6.5 0 0 1 13 0v2'/></svg>"
+  },
+  {
+    "name": "Baby",
+    "tags": [
+      "people",
+      "family",
+      "small"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 12h.01'/><path d='M15 12h.01'/><path d='M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5'/><path d='M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1'/></svg>"
+  },
+  {
+    "name": "Tablet",
+    "tags": [
+      "toy",
+      "play",
+      "screen",
+      "ipad"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='16' height='20' x='4' y='2' rx='2' ry='2'/><line x1='12' x2='12.01' y1='18' y2='18'/></svg>"
+  },
+  {
+    "name": "TV",
+    "tags": [
+      "watch",
+      "screen",
+      "movie"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='15' x='2' y='7' rx='2' ry='2'/><polyline points='17 2 12 7 7 2'/></svg>"
+  },
+  {
+    "name": "Sun (Day)",
+    "tags": [
+      "weather",
+      "hot",
+      "outside",
+      "bright"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M12 2v2'/><path d='M12 20v2'/><path d='m4.93 4.93 1.41 1.41'/><path d='m17.66 17.66 1.41 1.41'/><path d='M2 12h2'/><path d='M20 12h2'/><path d='m6.34 17.66-1.41 1.41'/><path d='m19.07 4.93-1.41 1.41'/></svg>"
+  },
+  {
+    "name": "Moon (Night)",
+    "tags": [
+      "weather",
+      "sleep",
+      "dark"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z'/></svg>"
+  },
+  {
+    "name": "Rain",
+    "tags": [
+      "weather",
+      "wet",
+      "outside"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242'/><path d='M16 14v6'/><path d='M8 14v6'/><path d='M12 16v6'/></svg>"
+  },
+  {
+    "name": "Snow",
+    "tags": [
+      "weather",
+      "cold",
+      "winter"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m10 14-2.5 2.5'/><path d='M16.5 16.5 14 14'/><path d='M2 12h5'/><path d='M17 12h5'/><path d='m14 10 2.5-2.5'/><path d='m7.5 7.5 2.5 2.5'/><path d='M12 22v-5'/><path d='M12 7V2'/></svg>"
+  },
+  {
+    "name": "Stop",
+    "tags": [
+      "no",
+      "wait",
+      "hand"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M8 12h8'/></svg>"
+  },
+  {
+    "name": "Go",
+    "tags": [
+      "move",
+      "start",
+      "green"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='m10 8 4 4-4 4'/></svg>"
+  },
+  {
+    "name": "Up",
+    "tags": [
+      "direction",
+      "high"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='m16 12-4-4-4 4'/><path d='M12 16V8'/></svg>"
+  },
+  {
+    "name": "Down",
+    "tags": [
+      "direction",
+      "low"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='m8 12 4 4 4-4'/><path d='M12 8v8'/></svg>"
+  },
+  {
+    "name": "Like (Heart)",
+    "tags": [
+      "love",
+      "good",
+      "emotion"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/></svg>"
+  },
+  {
+    "name": "Clock (Time)",
+    "tags": [
+      "when",
+      "wait",
+      "now"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>"
+  },
+  {
+    "name": "Help",
+    "tags": [
+      "question",
+      "ask"
+    ],
+    "svg": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'/><path d='M12 17h.01'/></svg>"
   }
 ]

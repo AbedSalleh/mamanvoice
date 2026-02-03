@@ -612,7 +612,7 @@ function CardEditorModal({
                 Image
               </div>
               <div className="rounded-2xl border bg-card p-4">
-                <Tabs defaultValue="library" className="w-full">
+                <Tabs defaultValue="upload" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
                     <TabsTrigger value="library">Library</TabsTrigger>
                     <TabsTrigger value="upload">Upload</TabsTrigger>
