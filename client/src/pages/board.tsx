@@ -1067,7 +1067,11 @@ export default function BoardPage() {
                   <Settings className="h-6 w-6" />
                 </Button>
               </>
-            ) : null}
+            ) : (
+              <span className="text-xs text-muted-foreground text-right hidden sm:inline-block mr-2" data-testid="text-header-child-help">
+                Tap to speak. Hold shield to unlock.
+              </span>
+            )}
 
             <button
               type="button"
@@ -1095,13 +1099,7 @@ export default function BoardPage() {
           </div>
         </header>
 
-        <div className="mt-4" data-testid="child-hint">
-          {!isEditMode && (
-            <div className="rounded-2xl border bg-card px-4 py-3 text-sm text-muted-foreground" data-testid="text-child-help">
-              Tap a card to speak. (Hold the shield to unlock Parent Mode.)
-            </div>
-          )}
-        </div>
+
 
         <main className="mt-5" data-testid="main">
           <div
