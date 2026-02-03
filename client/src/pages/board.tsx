@@ -1044,15 +1044,29 @@ export default function BoardPage() {
 
           <div className="flex items-center gap-2">
             {isEditMode ? (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setSettingsOpen(true)}
-                className="h-14 w-14 rounded-2xl p-0"
-                data-testid="button-settings"
-              >
-                <Settings className="h-6 w-6" />
-              </Button>
+              <>
+                <span className="text-xs text-muted-foreground hidden md:inline-block mr-2" data-testid="text-toolbar-help">
+                  Tip: in Child Mode, tapping cards speaks immediately.
+                </span>
+                <Button
+                  type="button"
+                  onClick={openAdd}
+                  className="h-14 rounded-2xl px-5 text-lg"
+                  data-testid="button-add-card"
+                >
+                  <Plus className="h-6 w-6" />
+                  Add Card
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setSettingsOpen(true)}
+                  className="h-14 w-14 rounded-2xl p-0"
+                  data-testid="button-settings"
+                >
+                  <Settings className="h-6 w-6" />
+                </Button>
+              </>
             ) : null}
 
             <button
@@ -1081,28 +1095,13 @@ export default function BoardPage() {
           </div>
         </header>
 
-        {isEditMode ? (
-          <div className="mt-4 flex flex-wrap gap-3" data-testid="toolbar">
-            <Button
-              type="button"
-              onClick={openAdd}
-              className="h-14 rounded-2xl px-5 text-lg"
-              data-testid="button-add-card"
-            >
-              <Plus className="h-6 w-6" />
-              Add Card
-            </Button>
-            <div className="rounded-2xl border bg-card px-4 py-3 text-sm text-muted-foreground" data-testid="text-toolbar-help">
-              Tip: in Child Mode, tapping cards speaks immediately.
-            </div>
-          </div>
-        ) : (
-          <div className="mt-4" data-testid="child-hint">
+        <div className="mt-4" data-testid="child-hint">
+          {!isEditMode && (
             <div className="rounded-2xl border bg-card px-4 py-3 text-sm text-muted-foreground" data-testid="text-child-help">
               Tap a card to speak. (Hold the shield to unlock Parent Mode.)
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <main className="mt-5" data-testid="main">
           <div
