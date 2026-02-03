@@ -5,6 +5,7 @@ import { Search, Loader2, DownloadCloud } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useLanguage } from "@/lib/i18n";
 
 type SymbolItem = {
     name: string;
@@ -22,6 +23,7 @@ const fetchSymbols = async (): Promise<SymbolItem[]> => {
 export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
     const [enabled, setEnabled] = useState(false);
     const [search, setSearch] = useState("");
+    const { t } = useLanguage();
 
     const { data: symbols, isLoading, isError } = useQuery({
         queryKey: ["symbols"],
@@ -50,12 +52,12 @@ export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
                 <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center mb-3">
                     <DownloadCloud className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-base font-semibold">Smart Symbol Library</h3>
+                <h3 className="text-base font-semibold">{t("library.title")}</h3>
                 <p className="text-xs text-muted-foreground max-w-[240px] mb-4">
-                    Download a library of common AAC symbols to use offline (approx 10KB).
+                    {t("library.desc")}
                 </p>
                 <Button onClick={() => setEnabled(true)} size="sm" className="rounded-xl h-9">
-                    Enable Library
+                    {t("library.enable")}
                 </Button>
             </div>
         );
@@ -65,7 +67,7 @@ export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
         return (
             <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
                 <Loader2 className="h-6 w-6 animate-spin mb-2" />
-                <span className="text-sm">Downloading library...</span>
+                <span className="text-sm">{t("library.loading")}</span>
             </div>
         );
     }
@@ -73,7 +75,7 @@ export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
     if (isError) {
         return (
             <div className="text-center p-8 text-destructive">
-                Failed to load symbols. Please check internet.
+                {t("library.error")}
             </div>
         );
     }
@@ -83,7 +85,7 @@ export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                    placeholder="Search Apple, Happy, Car..."
+                    placeholder={t("library.search")}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="pl-9 h-11 rounded-xl"
@@ -115,7 +117,7 @@ export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
                 ))}
                 {filtered?.length === 0 && (
                     <div className="col-span-full py-8 text-center text-sm text-muted-foreground">
-                        No symbols found for "{search}"
+                        {t("library.empty")} "{search}"
                     </div>
                 )}
             </div>

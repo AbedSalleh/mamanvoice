@@ -3,19 +3,21 @@ import { useLocation, useRoute } from "wouter";
 import Dexie, { type Table } from "dexie";
 import { useLiveQuery } from "dexie-react-hooks";
 import { v4 as uuidv4 } from "uuid";
+import { useLanguage } from "@/lib/i18n";
 import {
-  ArrowLeft,
-  Folder as FolderIcon,
-  Plus,
   Settings,
-  Trash2,
-  Pencil,
+  ShieldCheck,
   Volume2,
+  Folder as FolderIcon,
+  Download,
+  Upload,
   Mic,
   Square,
-  Upload,
-  Download,
-  ShieldCheck,
+  ArrowLeft,
+  Search,
+  Plus,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -170,6 +172,8 @@ function AACCardButton({
 
   const isFolder = card.type === "folder";
 
+  const { t } = useLanguage();
+
   return (
     <motion.div
       className={cn(
@@ -214,7 +218,7 @@ function AACCardButton({
               <Volume2 className="h-5 w-5" aria-hidden="true" />
             )}
             <span className="font-semibold" data-testid={`text-type-${card.id}`}>
-              {isFolder ? "Folder" : "Speak"}
+              {isFolder ? t("editor.type.folder") : t("editor.type.speak")}
             </span>
           </div>
 
@@ -223,14 +227,14 @@ function AACCardButton({
               className="rounded-full bg-white/70 border border-black/5 px-3 py-2 text-sm font-semibold"
               data-testid={`status-audio-${card.id}`}
             >
-              Audio
+              {t("editor.audio.status")}
             </div>
           ) : (
             <div
               className="rounded-full bg-white/60 border border-black/5 px-3 py-2 text-sm font-semibold"
               data-testid={`status-tts-${card.id}`}
             >
-              TTS
+              {t("editor.tts.status")}
             </div>
           )}
         </div>
@@ -306,7 +310,7 @@ function AACCardButton({
               "grid place-items-center",
               "active:scale-[0.98] transition",
             )}
-            aria-label="Edit"
+            aria-label={t("action.edit")}
             data-testid={`button-edit-${card.id}`}
           >
             <Pencil className="h-5 w-5" />
@@ -324,7 +328,7 @@ function AACCardButton({
               "grid place-items-center",
               "active:scale-[0.98] transition",
             )}
-            aria-label="Delete"
+            aria-label={t("action.delete")}
             data-testid={`button-delete-${card.id}`}
           >
             <Trash2 className="h-5 w-5 text-[hsl(var(--destructive))]" />
@@ -351,6 +355,8 @@ function Recorder({ value, onChange }: { value: Blob | null; onChange: (b: Blob 
     return () => URL.revokeObjectURL(url);
   }, [value]);
 
+  const { t } = useLanguage();
+
   const start = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -370,7 +376,7 @@ function Recorder({ value, onChange }: { value: Blob | null; onChange: (b: Blob 
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
     } catch {
-      toast.error("Microphone permission is required to record audio.");
+      toast.error(t("editor.audio.permission_error"));
     }
   };
 
@@ -397,12 +403,12 @@ function Recorder({ value, onChange }: { value: Blob | null; onChange: (b: Blob 
           {isRecording ? (
             <>
               <Square className="h-5 w-5" />
-              Stop
+              {t("editor.stop")}
             </>
           ) : (
             <>
               <Mic className="h-5 w-5" />
-              Record
+              {t("editor.record")}
             </>
           )}
         </Button>
@@ -415,7 +421,7 @@ function Recorder({ value, onChange }: { value: Blob | null; onChange: (b: Blob 
           className="h-12 rounded-2xl px-4"
           data-testid="button-clear-audio"
         >
-          Clear
+          {t("action.clear")}
         </Button>
       </div>
 
@@ -425,7 +431,7 @@ function Recorder({ value, onChange }: { value: Blob | null; onChange: (b: Blob 
         </div>
       ) : (
         <div className="text-sm text-muted-foreground" data-testid="text-audio-help">
-          Record a short, clear voice clip (or leave empty to use text-to-speech).
+          {t("editor.audio.help")}
         </div>
       )}
     </div>
@@ -444,6 +450,7 @@ function SettingsModal({
   onImport: (file: File) => void;
 }) {
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const { language, setLanguage, t } = useLanguage();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -451,17 +458,38 @@ function SettingsModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2" data-testid="title-settings">
             <ShieldCheck className="h-5 w-5" />
-            Parent Settings
+            {t("settings.title")}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
+
+          <div className="rounded-2xl border bg-card p-4">
+            <div className="font-semibold mb-3">{t("settings.language")}</div>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant={language === "en" ? "default" : "outline"}
+                onClick={() => setLanguage("en")}
+                className="rounded-xl"
+              >
+                English
+              </Button>
+              <Button
+                variant={language === "ms" ? "default" : "outline"}
+                onClick={() => setLanguage("ms")}
+                className="rounded-xl"
+              >
+                Bahasa Melayu
+              </Button>
+            </div>
+          </div>
+
           <div className="rounded-2xl border bg-card p-4" data-testid="panel-backup">
             <div className="font-semibold" data-testid="text-backup-title">
-              Backup & Restore
+              {t("settings.backup.title")}
             </div>
             <div className="text-sm text-muted-foreground" data-testid="text-backup-subtitle">
-              Export everything (including images and audio) to a single JSON file.
+              {t("settings.backup.subtitle")}
             </div>
             <div className="mt-4 flex flex-col sm:flex-row gap-3">
               <Button
@@ -471,7 +499,7 @@ function SettingsModal({
                 data-testid="button-export"
               >
                 <Download className="h-5 w-5" />
-                Export Backup
+                {t("action.export")}
               </Button>
               <Button
                 type="button"
@@ -481,7 +509,7 @@ function SettingsModal({
                 data-testid="button-import"
               >
                 <Upload className="h-5 w-5" />
-                Import Backup
+                {t("action.import")}
               </Button>
               <input
                 ref={fileRef}
@@ -502,10 +530,10 @@ function SettingsModal({
 
           <div className="space-y-2">
             <div className="text-sm text-muted-foreground" data-testid="text-settings-help">
-              Tip: keep your backup file somewhere safe (Google Drive, email, etc.).
+              {t("settings.tip")}
             </div>
             <div className="text-xs text-muted-foreground/50 text-center pt-2">
-              Pictograms by Mulberry Symbols (CC-BY-SA)
+              {t("settings.attribution")}
             </div>
           </div>
         </div>
@@ -529,6 +557,8 @@ function CardEditorModal({
   onSave: (data: Omit<CardRecord, "id"> & { id?: string }) => void;
   onDelete: () => void;
 }) {
+  const { t } = useLanguage();
+
   const [label, setLabel] = useState("");
   const [type, setType] = useState<CardType>("speak");
   const [image, setImage] = useState<Blob | null>(null);
@@ -548,24 +578,39 @@ function CardEditorModal({
 
   const canSave = label.trim().length > 0;
 
+  const handleSave = () => {
+    if (!canSave) return;
+    onSave({
+      id: initial?.id,
+      parentId,
+      type,
+      label: label.trim(),
+      image,
+      audio,
+      order: initial?.order ?? Date.now(),
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl" data-testid="modal-card-editor">
         <DialogHeader>
-          <DialogTitle data-testid="title-card-editor">{isEditing ? "Edit Card" : "Add Card"}</DialogTitle>
+          <DialogTitle data-testid="title-card-editor">
+            {isEditing ? t("editor.edit.title") : t("editor.add.title")}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="label" data-testid="label-label">
-              Label
+            <Label htmlFor="label" data-testid="label-input">
+              {t("editor.label")}
             </Label>
             <Input
               id="label"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="e.g., Cookie"
-              className="h-12 rounded-2xl text-lg"
+              placeholder={t("editor.label.placeholder")}
+              className="h-12 rounded-xl text-lg"
               data-testid="input-label"
             />
           </div>
@@ -575,13 +620,13 @@ function CardEditorModal({
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <div className="font-semibold" data-testid="text-image-title">
-                Image
+                {t("editor.image")}
               </div>
               <div className="rounded-2xl border bg-card p-4">
                 <Tabs defaultValue="upload" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
-                    <TabsTrigger value="library">Library</TabsTrigger>
-                    <TabsTrigger value="upload">Upload</TabsTrigger>
+                    <TabsTrigger value="library">{t("editor.tabs.library")}</TabsTrigger>
+                    <TabsTrigger value="upload">{t("editor.tabs.upload")}</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="upload" className="space-y-4">
@@ -594,7 +639,7 @@ function CardEditorModal({
                         data-testid="button-pick-image"
                       >
                         <Upload className="h-5 w-5 mr-2" />
-                        Choose File
+                        {t("upload.choose_file")}
                       </Button>
                       <Button
                         type="button"
@@ -604,7 +649,7 @@ function CardEditorModal({
                         onClick={() => setImage(null)}
                         data-testid="button-clear-image"
                       >
-                        Clear
+                        {t("action.clear")}
                       </Button>
                     </div>
                     <input
@@ -627,12 +672,14 @@ function CardEditorModal({
                 </Tabs>
 
                 <div className="mt-4 pt-4 border-t">
-                  <div className="text-xs font-semibold text-muted-foreground mb-2">PREVIEW</div>
+                  <div className="text-xs font-semibold text-muted-foreground mb-2">{t("upload.preview")}</div>
                   {imgUrl ? (
                     <img
                       src={imgUrl}
-                      alt="Preview"
+                      alt={t("upload.alt")}
                       className="w-full aspect-[4/3] object-contain rounded-xl border bg-white"
+                      loading="eager"
+                      decoding="async"
                       data-testid="img-preview"
                     />
                   ) : (
@@ -640,7 +687,7 @@ function CardEditorModal({
                       className="w-full aspect-[4/3] rounded-xl border bg-muted/30 grid place-items-center text-sm text-muted-foreground"
                       data-testid="text-no-image"
                     >
-                      No image selected
+                      {t("upload.no_image")}
                     </div>
                   )}
                 </div>
@@ -650,7 +697,7 @@ function CardEditorModal({
             <div className="space-y-6">
               <div className="space-y-2">
                 <div className="font-semibold" data-testid="text-type-title">
-                  Type
+                  {t("editor.type")}
                 </div>
                 <RadioGroup
                   value={type}
@@ -667,8 +714,8 @@ function CardEditorModal({
                     data-testid="option-speak"
                   >
                     <div>
-                      <div className="font-semibold">Speak</div>
-                      <div className="text-sm text-muted-foreground">Plays audio (or TTS)</div>
+                      <div className="font-semibold">{t("editor.type.speak")}</div>
+                      <div className="text-sm text-muted-foreground">{t("editor.type.speak.desc")}</div>
                     </div>
                     <RadioGroupItem value="speak" data-testid="radio-speak" />
                   </label>
@@ -681,8 +728,8 @@ function CardEditorModal({
                     data-testid="option-folder"
                   >
                     <div>
-                      <div className="font-semibold">Folder</div>
-                      <div className="text-sm text-muted-foreground">Opens a category</div>
+                      <div className="font-semibold">{t("editor.type.folder")}</div>
+                      <div className="text-sm text-muted-foreground">{t("editor.type.folder.desc")}</div>
                     </div>
                     <RadioGroupItem value="folder" data-testid="radio-folder" />
                   </label>
@@ -691,7 +738,7 @@ function CardEditorModal({
 
               <div className="space-y-2">
                 <div className="font-semibold" data-testid="text-audio-title">
-                  Audio
+                  {t("editor.audio")}
                 </div>
                 <div className="rounded-2xl border bg-card p-4">
                   <Recorder value={audio} onChange={setAudio} />
@@ -710,42 +757,43 @@ function CardEditorModal({
                 data-testid="button-delete-card"
               >
                 <Trash2 className="h-5 w-5" />
-                Delete
+                {t("action.delete")}
               </Button>
             ) : (
               <div />
             )}
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-4">
               <Button
                 type="button"
-                variant="secondary"
+                variant="outline"
                 onClick={() => onOpenChange(false)}
-                className="h-12 rounded-2xl"
+                className="flex-1 h-12 rounded-xl"
                 data-testid="button-cancel"
               >
-                Cancel
+                {t("action.cancel")}
               </Button>
               <Button
                 type="button"
-                onClick={() => {
-                  if (!canSave) return;
-                  onSave({
-                    id: initial?.id,
-                    parentId,
-                    type,
-                    label: label.trim(),
-                    image,
-                    audio,
-                    order: initial?.order ?? Date.now(),
-                  });
-                }}
-                disabled={!canSave}
-                className="h-12 rounded-2xl"
+                onClick={handleSave}
+                className="flex-1 h-12 rounded-xl"
+                disabled={!label.trim()}
                 data-testid="button-save"
               >
-                Save
+                {t("action.save")}
               </Button>
+              {initial && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={onDelete}
+                  className="h-12 w-12 rounded-xl px-0"
+                  data-testid="button-delete"
+                >
+                  <Trash2 className="h-5 w-5" />
+                  <span className="sr-only">{t("action.delete")}</span>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -764,13 +812,15 @@ export default function BoardPage() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<CardRecord | null>(null);
 
+  const { t } = useLanguage();
+
   const toggleMode = useCallback(() => {
     setIsEditMode((v) => {
       const next = !v;
-      toast.success(next ? "Parent mode unlocked" : "Child mode locked");
+      toast.success(next ? t("mode.parent_unlocked") : t("mode.child_locked"));
       return next;
     });
-  }, []);
+  }, [t]);
 
   const longPress = useLongPress(toggleMode);
   const tripleTap = useTripleTap(toggleMode);
@@ -897,10 +947,10 @@ export default function BoardPage() {
 
     if (isUpdate) {
       await db.cards.put(record);
-      toast.success("Updated");
+      toast.success(t("toast.updated"));
     } else {
       await db.cards.add(record);
-      toast.success("Added");
+      toast.success(t("toast.added"));
     }
 
     setEditorOpen(false);
@@ -913,13 +963,13 @@ export default function BoardPage() {
     if (card.type === "folder") {
       const children = await db.cards.where("parentId").equals(id).toArray();
       if (children.length > 0) {
-        toast.error("This folder has cards inside. Delete them first.");
+        toast.error(t("toast.folder_not_empty"));
         return;
       }
     }
 
     await db.cards.delete(id);
-    toast.success("Deleted");
+    toast.success(t("toast.deleted"));
   };
 
   const exportBackup = async () => {
@@ -966,7 +1016,7 @@ export default function BoardPage() {
     a.remove();
     URL.revokeObjectURL(url);
 
-    toast.success("Backup exported");
+    toast.success(t("toast.backup_exported"));
   };
 
   const importBackup = async (file: File) => {
@@ -975,7 +1025,7 @@ export default function BoardPage() {
       const parsed = JSON.parse(text) as BackupFile;
 
       if (!parsed || parsed.version !== 1 || !Array.isArray(parsed.cards)) {
-        toast.error("Invalid backup file");
+        toast.error(t("toast.invalid_backup"));
         return;
       }
 
@@ -994,18 +1044,18 @@ export default function BoardPage() {
         await db.cards.bulkAdd(nextCards);
       });
 
-      toast.success("Backup imported");
+      toast.success(t("toast.backup_imported"));
       setSettingsOpen(false);
       window.location.reload();
     } catch {
-      toast.error("Could not import backup");
+      toast.error(t("toast.import_failed"));
     }
   };
 
   const headerTitle = useMemo(() => {
-    if (!folderId) return "MamanVoice";
-    return currentFolder?.label ?? "Folder";
-  }, [currentFolder, folderId]);
+    if (!folderId) return t("app.title");
+    return currentFolder?.label ?? t("editor.type.folder");
+  }, [currentFolder, folderId, t]);
   const isRoot = !folderId;
 
   return (
@@ -1028,13 +1078,13 @@ export default function BoardPage() {
                 data-testid="button-back"
               >
                 <ArrowLeft className="h-6 w-6" />
-                Back
+                {t("action.back")}
               </Button>
             ) : null}
 
             <div className="leading-tight">
               <div className="text-sm text-muted-foreground" data-testid="text-mode">
-                {isEditMode ? "Parent Mode" : "Child Mode"}
+                {isEditMode ? t("mode.parent") : t("mode.child")}
               </div>
               <div className="font-serif text-3xl sm:text-4xl font-extrabold tracking-tight" data-testid="text-title">
                 {headerTitle}
@@ -1046,7 +1096,10 @@ export default function BoardPage() {
             {isEditMode ? (
               <>
                 <span className="text-xs text-destructive font-medium hidden md:inline-block mr-3 text-right">
-                  Warning: Data is saved LOCALLY. Export backup (in Settings) to save progress.
+                  {t("warning.local")}
+                </span>
+                <span className="text-xs text-muted-foreground hidden md:inline-block mr-2" data-testid="text-toolbar-help">
+                  {t("header.tip.parent")}
                 </span>
                 <Button
                   type="button"
@@ -1055,7 +1108,7 @@ export default function BoardPage() {
                   data-testid="button-add-card"
                 >
                   <Plus className="h-6 w-6" />
-                  Add Card
+                  {t("action.add")}
                 </Button>
                 <Button
                   type="button"
@@ -1069,7 +1122,7 @@ export default function BoardPage() {
               </>
             ) : (
               <span className="text-xs text-muted-foreground text-right hidden sm:inline-block mr-2" data-testid="text-header-child-help">
-                Tap to speak. Hold shield to unlock.
+                {t("header.tip.child")}
               </span>
             )}
 
@@ -1121,10 +1174,10 @@ export default function BoardPage() {
           {(ordered ?? []).length === 0 ? (
             <div className="mt-10 text-center" data-testid="empty">
               <div className="text-2xl font-serif font-extrabold" data-testid="text-empty-title">
-                Nothing here yet
+                {t("empty.title")}
               </div>
               <div className="mt-2 text-muted-foreground" data-testid="text-empty-subtitle">
-                Unlock Parent Mode to add cards.
+                {t("empty.subtitle")}
               </div>
             </div>
           ) : null}
