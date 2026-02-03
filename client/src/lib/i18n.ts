@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 
 export type Language = "en" | "ms";
 
@@ -42,7 +42,6 @@ export const translations = {
         "editor.audio": "Audio",
         "editor.record": "Record",
         "editor.stop": "Stop",
-        "editor.clear": "Clear",
         "editor.audio.help": "Record a short, clear voice clip (or leave empty to use text-to-speech).",
         "action.cancel": "Cancel",
         "action.save": "Save",
@@ -122,7 +121,6 @@ export const translations = {
         "editor.audio": "Audio",
         "editor.record": "Rekod",
         "editor.stop": "Berhenti",
-        "editor.clear": "Padam",
         "editor.audio.help": "Rekod klip suara pendek dan jelas (atau biarkan kosong untuk guna teks-ke-suara).",
         "action.cancel": "Batal",
         "action.save": "Simpan",
@@ -165,7 +163,15 @@ export const translations = {
     }
 } as const;
 
-export function useLanguage() {
+type LanguageContextType = {
+    language: Language;
+    setLanguage: (lang: Language) => void;
+    t: (key: keyof typeof translations["en"]) => string;
+};
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
     const [language, setLanguage] = useState<Language>(() => {
         const saved = localStorage.getItem("mamanvoice-lang");
         return (saved === "ms" ? "ms" : "en");
@@ -179,5 +185,18 @@ export function useLanguage() {
         return translations[language][key] || key;
     };
 
-    return { language, setLanguage, t };
+    return (
+        <LanguageContext.Provider value= {{ language, setLanguage, t }
+}>
+    { children }
+    </LanguageContext.Provider>
+  );
+}
+
+export function useLanguage() {
+    const context = useContext(LanguageContext);
+    if (context === undefined) {
+        throw new Error("useLanguage must be used within a LanguageProvider");
+    }
+    return context;
 }
