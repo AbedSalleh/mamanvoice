@@ -293,6 +293,11 @@ function AACCardButton({
               e.stopPropagation();
               onEdit();
             }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onEdit();
+            }}
             className={cn(
               "h-11 w-11 rounded-2xl",
               "bg-white/85 backdrop-blur",
@@ -308,6 +313,11 @@ function AACCardButton({
           <button
             type="button"
             onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onDelete();
             }}
@@ -743,6 +753,10 @@ function CardEditorModal({
                 type="button"
                 variant="destructive"
                 onClick={onDelete}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  onDelete();
+                }}
                 className="h-12 rounded-2xl"
                 data-testid="button-delete-card"
               >
@@ -766,6 +780,10 @@ function CardEditorModal({
               <Button
                 type="button"
                 onClick={handleSave}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  handleSave();
+                }}
                 className="flex-1 h-12 rounded-xl"
                 disabled={!label.trim()}
                 data-testid="button-save"
@@ -777,6 +795,10 @@ function CardEditorModal({
                   type="button"
                   variant="destructive"
                   onClick={onDelete}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    onDelete();
+                  }}
                   className="h-12 w-12 rounded-xl px-0"
                   data-testid="button-delete"
                 >
