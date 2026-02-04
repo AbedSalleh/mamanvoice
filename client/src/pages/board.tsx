@@ -1121,7 +1121,14 @@ export default function BoardPage() {
           initial={{ y: 0 }}
           animate={{ y: headerVisible ? 0 : -120 }}
           transition={{ type: "spring", damping: 20, stiffness: 300 }}
-          className="mb-3 sm:mb-4 flex items-center justify-between gap-3 relative"
+          style={{
+            position: headerVisible ? 'relative' : 'absolute',
+            top: headerVisible ? undefined : 0,
+            left: headerVisible ? undefined : 0,
+            right: headerVisible ? undefined : 0,
+            zIndex: headerVisible ? undefined : 40,
+          }}
+          className="mb-3 sm:mb-4 flex items-center justify-between gap-3"
           data-testid="header"
         >
           <div className="flex items-center gap-3">
