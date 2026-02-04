@@ -18,6 +18,7 @@ import {
   Plus,
   Pencil,
   Trash2,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -823,6 +824,7 @@ export default function BoardPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<CardRecord | null>(null);
+  const [headerVisible, setHeaderVisible] = useState(true);
 
   const { t } = useLanguage();
 
@@ -1072,6 +1074,15 @@ export default function BoardPage() {
   }, [currentFolder, folderId, t]);
   const isRoot = !folderId;
 
+  // Auto-hide header after 3 seconds
+  useEffect(() => {
+    setHeaderVisible(true); // Show header on folder change
+    const timer = setTimeout(() => {
+      setHeaderVisible(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [folderId]);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.96 }}
@@ -1081,7 +1092,38 @@ export default function BoardPage() {
       className="min-h-screen bg-background p-3 sm:p-4"
     >
       <div className="mx-auto max-w-7xl">
-        <header className="mb-3 sm:mb-4 flex items-center justify-between gap-3" data-testid="header">
+        {/* Toggle button when header is hidden */}
+        {!headerVisible && (
+          <motion.button
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            type="button"
+            onClick={() => setHeaderVisible(true)}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              setHeaderVisible(true);
+            }}
+            className={cn(
+              "fixed top-0 left-1/2 -translate-x-1/2 z-50",
+              "bg-card border border-border rounded-b-2xl",
+              "px-4 py-2",
+              "aac-card-shadow",
+              "active:scale-[0.98] transition",
+            )}
+            aria-label="Show header"
+          >
+            <ChevronDown className="h-5 w-5" />
+          </motion.button>
+        )}
+
+        <motion.header
+          initial={{ y: 0 }}
+          animate={{ y: headerVisible ? 0 : -120 }}
+          transition={{ type: "spring", damping: 20, stiffness: 300 }}
+          className="mb-3 sm:mb-4 flex items-center justify-between gap-3 relative"
+          data-testid="header"
+        >
           <div className="flex items-center gap-3">
             {folderId ? (
               <Button
@@ -1164,7 +1206,8 @@ export default function BoardPage() {
               />
             </button>
           </div>
-        </header>
+        </motion.header>
+
 
 
 
