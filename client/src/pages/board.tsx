@@ -193,7 +193,7 @@ function AACCardButton({
           "w-full h-full",
           "p-3 sm:p-4",
           "flex flex-col items-stretch justify-between",
-          "min-h-[150px] sm:min-h-[180px] md:min-h-[210px]",
+          "min-h-[120px] sm:min-h-[140px] md:min-h-[160px]",
           "transition-transform duration-150",
           "active:scale-[0.99]",
           isFolder
@@ -593,14 +593,14 @@ function CardEditorModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl" data-testid="modal-card-editor">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col" data-testid="modal-card-editor">
         <DialogHeader>
           <DialogTitle data-testid="title-card-editor">
             {isEditing ? t("editor.edit.title") : t("editor.add.title")}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-5">
+        <div className="space-y-4 overflow-y-auto flex-1 pr-2">
           <div className="space-y-2">
             <Label htmlFor="label" data-testid="label-input">
               {t("editor.label")}
@@ -617,12 +617,12 @@ function CardEditorModal({
 
 
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             <div className="space-y-2">
               <div className="font-semibold" data-testid="text-image-title">
                 {t("editor.image")}
               </div>
-              <div className="rounded-2xl border bg-card p-4">
+              <div className="rounded-2xl border bg-card p-3">
                 <Tabs defaultValue="upload" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
                     <TabsTrigger value="library">{t("editor.tabs.library")}</TabsTrigger>
@@ -694,7 +694,7 @@ function CardEditorModal({
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="space-y-2">
                 <div className="font-semibold" data-testid="text-type-title">
                   {t("editor.type")}
@@ -740,7 +740,7 @@ function CardEditorModal({
                 <div className="font-semibold" data-testid="text-audio-title">
                   {t("editor.audio")}
                 </div>
-                <div className="rounded-2xl border bg-card p-4">
+                <div className="rounded-2xl border bg-card p-3">
                   <Recorder value={audio} onChange={setAudio} />
                 </div>
               </div>
