@@ -191,9 +191,8 @@ function AACCardButton({
         onClick={onOpen}
         className={cn(
           "w-full h-full",
-          "p-3 sm:p-4",
-          "flex flex-col items-stretch justify-between",
-          "min-h-[110px] sm:min-h-[125px] md:min-h-[140px]",
+          "p-2",
+          "flex flex-col items-stretch",
           "transition-transform duration-150",
           "active:scale-[0.99]",
           isFolder
@@ -202,50 +201,14 @@ function AACCardButton({
         )}
         data-testid={`button-open-${card.id}`}
       >
-        <div className="flex items-start justify-between gap-2">
-          <div
-            className={cn(
-              "inline-flex items-center gap-2",
-              "px-3 py-2 rounded-full",
-              "bg-white/70 backdrop-blur",
-              "border border-black/5",
-            )}
-            data-testid={`badge-type-${card.id}`}
-          >
-            {isFolder ? (
-              <FolderIcon className="h-5 w-5" aria-hidden="true" />
-            ) : (
-              <Volume2 className="h-5 w-5" aria-hidden="true" />
-            )}
-            <span className="font-semibold" data-testid={`text-type-${card.id}`}>
-              {isFolder ? t("editor.type.folder") : t("editor.type.speak")}
-            </span>
-          </div>
-
-          {card.audio ? (
-            <div
-              className="rounded-full bg-white/70 border border-black/5 px-3 py-2 text-sm font-semibold"
-              data-testid={`status-audio-${card.id}`}
-            >
-              {t("editor.audio.status")}
-            </div>
-          ) : (
-            <div
-              className="rounded-full bg-white/60 border border-black/5 px-3 py-2 text-sm font-semibold"
-              data-testid={`status-tts-${card.id}`}
-            >
-              {t("editor.tts.status")}
-            </div>
-          )}
-        </div>
-
         <div
           className={cn(
-            "mt-3 rounded-[22px]",
+            "rounded-[22px]",
             "bg-white/60 border border-black/5",
             "overflow-hidden",
             "grid place-items-center",
             "aspect-square",
+            "relative",
           )}
           data-testid={`imgwrap-${card.id}`}
         >
@@ -277,23 +240,50 @@ function AACCardButton({
               </div>
             </div>
           )}
-        </div>
 
-        <div
-          className={cn(
-            "mt-3",
-            "text-center",
-            "font-serif font-extrabold",
-            "tracking-tight",
-            "text-[22px] sm:text-[26px] md:text-[30px]",
-            "leading-tight",
-            "px-2",
-          )}
-          data-testid={`text-label-${card.id}`}
-        >
-          {card.label}
+          {/* Small icon indicator in top-right corner */}
+          <div
+            className={cn(
+              "absolute top-2 right-2",
+              "w-8 h-8 rounded-full",
+              "bg-white/90 backdrop-blur",
+              "border border-black/10",
+              "grid place-items-center",
+            )}
+            data-testid={`badge-type-${card.id}`}
+          >
+            {isFolder ? (
+              <FolderIcon className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Volume2 className="h-4 w-4" aria-hidden="true" />
+            )}
+          </div>
+
+          {/* Label overlay on bottom of image */}
+          <div
+            className={cn(
+              "absolute bottom-0 left-0 right-0",
+              "bg-black/70 backdrop-blur-sm",
+              "px-3 py-2",
+              "text-center",
+            )}
+            data-testid={`text-label-${card.id}`}
+          >
+            <div
+              className={cn(
+                "font-serif font-extrabold",
+                "tracking-tight",
+                "text-white",
+                "text-[18px] sm:text-[20px] md:text-[22px]",
+                "leading-tight",
+              )}
+            >
+              {card.label}
+            </div>
+          </div>
         </div>
       </button>
+
 
       {isEditMode ? (
         <div className="absolute top-3 right-3 flex gap-2" data-testid={`controls-${card.id}`}>
