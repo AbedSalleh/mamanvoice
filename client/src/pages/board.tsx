@@ -193,7 +193,7 @@ function AACCardButton({
           "w-full h-full",
           "p-3 sm:p-4",
           "flex flex-col items-stretch justify-between",
-          "min-h-[120px] sm:min-h-[140px] md:min-h-[160px]",
+          "min-h-[110px] sm:min-h-[125px] md:min-h-[140px]",
           "transition-transform duration-150",
           "active:scale-[0.99]",
           isFolder
@@ -1066,10 +1066,10 @@ export default function BoardPage() {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.2 }}
-      className="min-h-screen bg-background p-4 sm:p-6"
+      className="min-h-screen bg-background p-3 sm:p-4"
     >
       <div className="mx-auto max-w-7xl">
-        <header className="mb-6 sm:mb-8 flex items-center justify-between gap-3" data-testid="header">
+        <header className="mb-3 sm:mb-4 flex items-center justify-between gap-3" data-testid="header">
           <div className="flex items-center gap-3">
             {folderId ? (
               <Button
@@ -1156,9 +1156,9 @@ export default function BoardPage() {
 
 
 
-        <main className="mt-5" data-testid="main">
+        <main data-testid="main">
           <div
-            className={cn("grid gap-4", "grid-cols-2", "sm:grid-cols-3", "md:grid-cols-4", "lg:grid-cols-4", "xl:grid-cols-4")}
+            className={cn("grid gap-3", "grid-cols-2", "sm:grid-cols-3", "md:grid-cols-4", "lg:grid-cols-4", "xl:grid-cols-4")}
             data-testid="grid-cards"
           >
             {(ordered ?? []).map((c) => (
