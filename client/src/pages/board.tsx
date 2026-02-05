@@ -1026,7 +1026,7 @@ export default function BoardPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `aac-backup-${formatDateStamp(new Date())}.json`;
+    a.download = "mamanvoice-backup.json";
     document.body.appendChild(a);
     a.click();
     a.remove();
