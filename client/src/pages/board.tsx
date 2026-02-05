@@ -19,6 +19,7 @@ import {
   Pencil,
   Trash2,
   ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -823,7 +824,7 @@ export default function BoardPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<CardRecord | null>(null);
-  const [headerVisible, setHeaderVisible] = useState(true);
+  const [headerVisible, setHeaderVisible] = useState(false);
 
   const { t } = useLanguage();
 
@@ -1073,14 +1074,7 @@ export default function BoardPage() {
   }, [currentFolder, folderId, t]);
   const isRoot = !folderId;
 
-  // Auto-hide header after 3 seconds
-  useEffect(() => {
-    setHeaderVisible(true); // Show header on folder change
-    const timer = setTimeout(() => {
-      setHeaderVisible(false);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [folderId]);
+
 
   return (
     <motion.div
@@ -1130,7 +1124,8 @@ export default function BoardPage() {
           className="mb-3 sm:mb-4 flex items-center justify-between gap-3"
           data-testid="header"
         >
-          <div className="flex items-center gap-3">
+          {/* Left: Title/Back */}
+          <div className="flex items-center gap-3 flex-1">
             {folderId ? (
               <Button
                 type="button"
@@ -1153,6 +1148,24 @@ export default function BoardPage() {
               </div>
             </div>
           </div>
+
+          {/* Center: Hide header button */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setHeaderVisible(false)}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              setHeaderVisible(false);
+            }}
+            className="h-10 w-10 rounded-xl"
+            aria-label="Hide header"
+          >
+            <ChevronUp className="h-5 w-5" />
+          </Button>
+
+          {/* Right: Controls */}
 
           <div className="flex items-center gap-2">
             {isEditMode ? (
