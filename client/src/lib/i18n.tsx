@@ -11,6 +11,7 @@ export const translations = {
         "action.add": "Add Card",
         "header.tip.child": "Tap to speak. Hold shield to unlock.",
         "header.tip.parent": "Tip: in Child Mode, tapping cards speaks immediately.",
+        "action.next": "Next",
         "warning.local": "Warning: Data is saved LOCALLY. Export backup (in Settings) to save progress.",
         "hint.child": "Tap a card to speak. (Hold the shield to unlock Parent Mode.)",
         "empty.title": "Nothing here yet",
@@ -90,6 +91,7 @@ export const translations = {
         "action.add": "Tambah Kad",
         "header.tip.child": "Tekan untuk cakap. Tahan perisai untuk buka kunci.",
         "header.tip.parent": "Tip: dalam Mod Anak, kad akan terus bercakap apabila ditekan.",
+        "action.next": "Seterusnya",
         "warning.local": "Amaran: Data disimpan SECARA LOKAL. Eksport sandaran (dalam Tetapan) untuk simpan.",
         "hint.child": "Tekan kad untuk bercakap. (Tahan perisai untuk buka kunci Mod Ibu Bapa.)",
         "empty.title": "Tiada apa-apa di sini",
@@ -186,11 +188,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <LanguageContext.Provider value= {{ language, setLanguage, t }
-}>
-    { children }
-    </LanguageContext.Provider>
-  );
+        <LanguageContext.Provider value={{ language, setLanguage, t }
+        }>
+            {children}
+        </LanguageContext.Provider>
+    );
 }
 
 export function useLanguage() {

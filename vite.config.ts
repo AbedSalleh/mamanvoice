@@ -9,6 +9,9 @@ import { VitePWA } from "vite-plugin-pwa";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Use relative paths for Capacitor builds, GitHub Pages path otherwise
+const isCapacitor = process.env.CAPACITOR === 'true';
+
 export default defineConfig({
     plugins: [
         react(),
@@ -56,6 +59,6 @@ export default defineConfig({
         outDir: path.resolve(__dirname, "dist/public"),
         emptyOutDir: true,
     },
-    base: "/mamanvoice/",
+    base: isCapacitor ? "./" : "/mamanvoice/",
 });
 

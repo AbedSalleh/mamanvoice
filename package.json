@@ -9,9 +9,17 @@
     "build": "tsx script/build.ts",
     "start": "NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "cap:build": "cross-env CAPACITOR=true vite build",
+    "cap:sync": "npx cap sync android",
+    "cap:open": "npx cap open android",
+    "cap:run": "npm run cap:build && npm run cap:sync"
   },
   "dependencies": {
+    "@capacitor-community/text-to-speech": "^4.1.1",
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/cli": "^6.2.1",
+    "@capacitor/core": "^6.2.1",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@octokit/rest": "^22.0.0",
@@ -96,6 +104,7 @@
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^5.0.4",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^10.1.0",
     "drizzle-kit": "^0.31.4",
     "esbuild": "^0.25.0",
     "postcss": "^8.5.6",

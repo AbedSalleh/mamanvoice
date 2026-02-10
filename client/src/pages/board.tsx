@@ -4,6 +4,8 @@ import Dexie, { type Table } from "dexie";
 import { useLiveQuery } from "dexie-react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { useLanguage } from "@/lib/i18n";
+import { TextToSpeech } from "@capacitor-community/text-to-speech";
+import { Capacitor } from "@capacitor/core";
 import {
   Settings,
   ShieldCheck,
@@ -32,6 +34,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SymbolPicker } from "@/components/symbol-picker";
 import { toast } from "sonner";
+import { CardWizard } from "@/components/card-wizard";
 
 type CardType = "speak" | "folder";
 
@@ -129,31 +132,31 @@ function useLongPress(onTrigger: () => void, ms = 650) {
   return { start, clear };
 }
 
-function useObjectUrl(blob: Blob | null) {
-  const [url, setUrl] = useState<string | null>(null);
-  useEffect(() => {
-    if (!blob) {
-      setUrl(null);
-      return;
-    }
-    const next = URL.createObjectURL(blob);
-    setUrl(next);
-    return () => URL.revokeObjectURL(next);
-  }, [blob]);
-  return url;
-}
-
+import { useObjectUrl } from "@/hooks/use-object-url";
 function speakFallback(text: string) {
   if (!text) return;
-  try {
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 0.95;
-    utter.pitch = 1.0;
-    utter.lang = "en-US";
-    window.speechSynthesis.speak(utter);
-  } catch {
-    // ignore
+
+  // Use native TTS on Android/iOS, Web Speech API on browsers
+  if (Capacitor.isNativePlatform()) {
+    TextToSpeech.speak({
+      text,
+      rate: 0.95,
+      pitch: 1.0,
+      lang: "en-US",
+    }).catch(() => {
+      // Fallback silently if TTS fails
+    });
+  } else {
+    try {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.95;
+      utter.pitch = 1.0;
+      utter.lang = "en-US";
+      window.speechSynthesis.speak(utter);
+    } catch {
+      // ignore
+    }
   }
 }
 
@@ -341,106 +344,6 @@ function AACCardButton({
   );
 }
 
-function Recorder({ value, onChange }: { value: Blob | null; onChange: (b: Blob | null) => void }) {
-  const [isRecording, setIsRecording] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<BlobPart[]>([]);
-
-  useEffect(() => {
-    if (!value) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(value);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [value]);
-
-  const { t } = useLanguage();
-
-  const start = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      chunksRef.current = [];
-      recorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
-      };
-      recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, {
-          type: recorder.mimeType || "audio/webm",
-        });
-        onChange(blob);
-        stream.getTracks().forEach((t) => t.stop());
-      };
-      recorder.start();
-      mediaRecorderRef.current = recorder;
-      setIsRecording(true);
-    } catch {
-      toast.error(t("editor.audio.permission_error"));
-    }
-  };
-
-  const stop = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      mediaRecorderRef.current = null;
-    }
-  };
-
-  return (
-    <div className="space-y-2" data-testid="recorder-root">
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          onClick={isRecording ? stop : start}
-          className={cn(
-            "h-10 rounded-xl px-3",
-            isRecording ? "bg-[hsl(var(--destructive))]" : "bg-[hsl(var(--accent))]",
-          )}
-          data-testid={isRecording ? "button-stop-recording" : "button-start-recording"}
-        >
-          {isRecording ? (
-            <>
-              <Square className="h-4 w-4" />
-              {t("editor.stop")}
-            </>
-          ) : (
-            <>
-              <Mic className="h-4 w-4" />
-              {t("editor.record")}
-            </>
-          )}
-        </Button>
-
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => onChange(null)}
-          disabled={!value}
-          className="h-10 rounded-xl px-3"
-          data-testid="button-clear-audio"
-        >
-          {t("action.clear")}
-        </Button>
-
-        {!previewUrl && (
-          <span className="text-xs text-muted-foreground flex-1 min-w-0" data-testid="text-audio-help">
-            {t("editor.audio.help")}
-          </span>
-        )}
-      </div>
-
-      {previewUrl && (
-        <div className="rounded-xl border bg-card p-2" data-testid="audio-preview">
-          <audio controls src={previewUrl} className="w-full h-8" data-testid="audio-element" />
-        </div>
-      )}
-    </div>
-  );
-}
 
 function SettingsModal({
   open,
@@ -546,274 +449,6 @@ function SettingsModal({
   );
 }
 
-function CardEditorModal({
-  open,
-  onOpenChange,
-  initial,
-  parentId,
-  onSave,
-  onDelete,
-}: {
-  open: boolean;
-  onOpenChange: (o: boolean) => void;
-  initial: CardRecord | null;
-  parentId: string | null;
-  onSave: (data: Omit<CardRecord, "id"> & { id?: string }) => void;
-  onDelete: () => void;
-}) {
-  const { t } = useLanguage();
-
-  const [label, setLabel] = useState("");
-  const [type, setType] = useState<CardType>("speak");
-  const [image, setImage] = useState<Blob | null>(null);
-  const [audio, setAudio] = useState<Blob | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    setLabel(initial?.label ?? "");
-    setType(initial?.type ?? "speak");
-    setImage(initial?.image ?? null);
-    setAudio(initial?.audio ?? null);
-  }, [initial, open]);
-
-  const imgUrl = useObjectUrl(image);
-
-  const isEditing = Boolean(initial);
-
-  const canSave = label.trim().length > 0;
-
-  const handleSave = () => {
-    if (!canSave) return;
-    onSave({
-      id: initial?.id,
-      parentId,
-      type,
-      label: label.trim(),
-      image,
-      audio,
-      order: initial?.order ?? Date.now(),
-    });
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col" data-testid="modal-card-editor">
-        <DialogHeader>
-          <DialogTitle data-testid="title-card-editor">
-            {isEditing ? t("editor.edit.title") : t("editor.add.title")}
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4 overflow-y-auto flex-1 pr-2">
-          {/* Row 1: Label + Type - same height aligned */}
-          <div className="grid gap-3 sm:grid-cols-2 items-end">
-            <div className="space-y-1">
-              <Label htmlFor="label" data-testid="label-input">
-                {t("editor.label")}
-              </Label>
-              <Input
-                id="label"
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                placeholder={t("editor.label.placeholder")}
-                className="h-12 rounded-lg text-lg"
-                data-testid="input-label"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <div className="font-semibold text-sm" data-testid="text-type-title">
-                {t("editor.type")}
-              </div>
-              <RadioGroup
-                value={type}
-                onValueChange={(v) => setType(v as CardType)}
-                className="flex gap-2"
-                data-testid="radio-type"
-              >
-                <label
-                  className={cn(
-                    "flex-1 rounded-xl border bg-card h-12",
-                    "flex items-center justify-center gap-2",
-                    "cursor-pointer",
-                  )}
-                  data-testid="option-speak"
-                >
-                  <div className="font-medium text-sm">{t("editor.type.speak")}</div>
-                  <RadioGroupItem value="speak" data-testid="radio-speak" />
-                </label>
-                <label
-                  className={cn(
-                    "flex-1 rounded-xl border bg-card h-12",
-                    "flex items-center justify-center gap-2",
-                    "cursor-pointer",
-                  )}
-                  data-testid="option-folder"
-                >
-                  <div className="font-medium text-sm">{t("editor.type.folder")}</div>
-                  <RadioGroupItem value="folder" data-testid="radio-folder" />
-                </label>
-              </RadioGroup>
-            </div>
-          </div>
-
-          {/* Row 2: Audio only - full width */}
-          <div className="space-y-1">
-            <div className="font-semibold text-sm" data-testid="text-audio-title">
-              {t("editor.audio")}
-            </div>
-            <div className="rounded-2xl border bg-card p-3">
-              <Recorder value={audio} onChange={setAudio} />
-            </div>
-          </div>
-
-          {/* Row 3: Image picker (left) + Preview (right) */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1">
-              <div className="font-semibold text-sm" data-testid="text-image-title">
-                {t("editor.image")}
-              </div>
-              <div className="rounded-2xl border bg-card p-3">
-                <Tabs defaultValue="upload" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-3">
-                    <TabsTrigger value="library">{t("editor.tabs.library")}</TabsTrigger>
-                    <TabsTrigger value="upload">{t("editor.tabs.upload")}</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="upload" className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        className="h-10 rounded-xl flex-1 text-sm"
-                        onClick={() => document.getElementById("image-input")?.click()}
-                        data-testid="button-pick-image"
-                      >
-                        <Upload className="h-4 w-4 mr-1" />
-                        {t("upload.choose_file")}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="h-10 rounded-xl px-2 text-sm"
-                        disabled={!image}
-                        onClick={() => setImage(null)}
-                        data-testid="button-clear-image"
-                      >
-                        {t("action.clear")}
-                      </Button>
-                    </div>
-                    <input
-                      id="image-input"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) setImage(f);
-                        e.currentTarget.value = "";
-                      }}
-                      data-testid="input-image"
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="library">
-                    <SymbolPicker onSelect={setImage} />
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="font-semibold text-sm">{t("upload.preview")}</div>
-              <div className="rounded-2xl border bg-card p-2">
-                {imgUrl ? (
-                  <img
-                    src={imgUrl}
-                    alt={t("upload.alt")}
-                    className="w-24 h-24 object-contain rounded-lg border bg-white mx-auto"
-                    loading="eager"
-                    decoding="async"
-                    data-testid="img-preview"
-                  />
-                ) : (
-                  <div
-                    className="w-24 h-24 rounded-lg border bg-muted/30 flex items-center justify-center text-xs text-muted-foreground text-center mx-auto p-2"
-                    data-testid="text-no-image"
-                  >
-                    {t("upload.no_image")}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 justify-between">
-          {isEditing ? (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={onDelete}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                onDelete();
-              }}
-              className="h-12 rounded-2xl"
-              data-testid="button-delete-card"
-            >
-              <Trash2 className="h-5 w-5" />
-              {t("action.delete")}
-            </Button>
-          ) : (
-            <div />
-          )}
-
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="flex-1 h-12 rounded-xl"
-              data-testid="button-cancel"
-            >
-              {t("action.cancel")}
-            </Button>
-            <Button
-              type="button"
-              onClick={handleSave}
-              onTouchEnd={(e) => {
-                e.preventDefault();
-                handleSave();
-              }}
-              className="flex-1 h-12 rounded-xl"
-              disabled={!label.trim()}
-              data-testid="button-save"
-            >
-              {t("action.save")}
-            </Button>
-            {initial && (
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={onDelete}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  onDelete();
-                }}
-                className="h-12 w-12 rounded-xl px-0"
-                data-testid="button-delete"
-              >
-                <Trash2 className="h-5 w-5" />
-                <span className="sr-only">{t("action.delete")}</span>
-              </Button>
-            )}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 export default function BoardPage() {
   const [, params] = useRoute("/folder/:id");
@@ -1110,6 +745,20 @@ export default function BoardPage() {
           </motion.button>
         )}
 
+        {/* Persistent Back Button - Fixed Position */}
+        {folderId ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setLocation("/")}
+            className="fixed top-3 left-3 z-[60] h-12 w-12 rounded-xl p-0 sm:h-14 sm:w-auto sm:px-4 sm:text-lg shadow-sm sm:top-4 sm:left-4"
+            data-testid="button-back"
+          >
+            <ArrowLeft className="h-6 w-6" />
+            <span className="sr-only sm:not-sr-only sm:ml-2">{t("action.back")}</span>
+          </Button>
+        ) : null}
+
         <motion.header
           initial={{ y: 0 }}
           animate={{ y: headerVisible ? 0 : -120 }}
@@ -1125,19 +774,7 @@ export default function BoardPage() {
           data-testid="header"
         >
           {/* Left: Title/Back */}
-          <div className="flex items-center gap-3 flex-1">
-            {folderId ? (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setLocation("/")}
-                className="h-14 rounded-2xl px-4 text-lg"
-                data-testid="button-back"
-              >
-                <ArrowLeft className="h-6 w-6" />
-                {t("action.back")}
-              </Button>
-            ) : null}
+          <div className={cn("flex items-center gap-3 flex-1", folderId && "pl-16 sm:pl-24 transition-all")}>
 
             <div className="leading-tight">
               <div className="text-sm text-muted-foreground" data-testid="text-mode">
@@ -1266,7 +903,7 @@ export default function BoardPage() {
           onImport={importBackup}
         />
 
-        <CardEditorModal
+        <CardWizard
           open={editorOpen}
           onOpenChange={setEditorOpen}
           initial={editingCard}
