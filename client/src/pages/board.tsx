@@ -35,6 +35,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SymbolPicker } from "@/components/symbol-picker";
 import { toast } from "sonner";
 import { CardWizard } from "@/components/card-wizard";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSwappingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 type CardType = "speak" | "folder";
 
@@ -173,6 +192,21 @@ function AACCardButton({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: card.id, disabled: !isEditMode });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : 1,
+  };
+
   const imgUrl = useObjectUrl(card.image);
 
   const isFolder = card.type === "folder";
@@ -187,10 +221,15 @@ function AACCardButton({
         "bg-card text-card-foreground",
         "border border-border",
         "overflow-hidden",
+        isDragging && "opacity-50 ring-2 ring-primary ring-offset-2",
       )}
       data-testid={`card-${card.id}`}
-      whileTap={{ scale: 0.95 }}
+      whileTap={!isEditMode ? { scale: 0.95 } : undefined}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
     >
       <button
         onClick={onOpen}
@@ -703,6 +742,44 @@ export default function BoardPage() {
     }
   };
 
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      if (!ordered) return;
+
+      const oldIndex = ordered.findIndex((item) => item.id === active.id);
+      const newIndex = ordered.findIndex((item) => item.id === over.id);
+
+      const newOrdered = arrayMove(ordered, oldIndex, newIndex);
+
+      // Update order in database
+      const updates = newOrdered.map((item, index) => ({
+        ...item,
+        order: index + 1,
+      }));
+
+      await db.cards.bulkPut(updates);
+    }
+  };
+
   const headerTitle = useMemo(() => {
     if (!folderId) return t("app.title");
     return currentFolder?.label ?? t("editor.type.folder");
@@ -826,10 +903,10 @@ export default function BoardPage() {
                   type="button"
                   variant="secondary"
                   onClick={() => setSettingsOpen(true)}
-                  className="h-14 w-14 rounded-2xl p-0"
+                  className="h-16 w-16 sm:w-20 rounded-2xl p-0"
                   data-testid="button-settings"
                 >
-                  <Settings className="h-6 w-6" />
+                  <Settings className="h-7 w-7" />
                 </Button>
               </>
             ) : (
@@ -845,7 +922,8 @@ export default function BoardPage() {
               onPointerUp={longPress.clear}
               onPointerCancel={longPress.clear}
               className={cn(
-                "h-14 w-14 rounded-2xl",
+                isEditMode ? "h-16 w-16 sm:w-20" : "h-14 w-14",
+                "rounded-2xl",
                 "grid place-items-center",
                 "border border-border bg-card",
                 "aac-card-shadow",
@@ -856,8 +934,7 @@ export default function BoardPage() {
             >
               <ShieldCheck
                 className={cn(
-                  "h-6 w-6",
-                  isEditMode ? "text-[hsl(var(--accent))]" : "text-muted-foreground",
+                  isEditMode ? "h-7 w-7 text-[hsl(var(--accent))]" : "h-6 w-6 text-muted-foreground",
                 )}
               />
             </button>
@@ -868,21 +945,32 @@ export default function BoardPage() {
 
 
         <main data-testid="main">
-          <div
-            className={cn("grid gap-3", "grid-cols-2", "sm:grid-cols-3", "md:grid-cols-4", "lg:grid-cols-4", "xl:grid-cols-4")}
-            data-testid="grid-cards"
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            {(ordered ?? []).map((c) => (
-              <AACCardButton
-                key={c.id}
-                card={c}
-                isEditMode={isEditMode}
-                onOpen={() => handleOpen(c)}
-                onEdit={() => openEdit(c)}
-                onDelete={() => deleteCard(c.id)}
-              />
-            ))}
-          </div>
+            <SortableContext
+              items={(ordered ?? []).map(c => c.id)}
+              strategy={rectSwappingStrategy}
+            >
+              <div
+                className={cn("grid gap-3", "grid-cols-2", "sm:grid-cols-3", "md:grid-cols-4", "lg:grid-cols-4", "xl:grid-cols-4")}
+                data-testid="grid-cards"
+              >
+                {(ordered ?? []).map((c) => (
+                  <AACCardButton
+                    key={c.id}
+                    card={c}
+                    isEditMode={isEditMode}
+                    onOpen={() => handleOpen(c)}
+                    onEdit={() => openEdit(c)}
+                    onDelete={() => deleteCard(c.id)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
 
           {(ordered ?? []).length === 0 ? (
             <div className="mt-10 text-center" data-testid="empty">
