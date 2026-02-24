@@ -50,7 +50,7 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSwappingStrategy,
+  rectSortingStrategy,
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -202,9 +202,10 @@ function AACCardButton({
   } = useSortable({ id: card.id, disabled: !isEditMode });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     transition,
     zIndex: isDragging ? 50 : 1,
+    position: 'relative' as const,
   };
 
   const imgUrl = useObjectUrl(card.image);
@@ -952,7 +953,7 @@ export default function BoardPage() {
           >
             <SortableContext
               items={(ordered ?? []).map(c => c.id)}
-              strategy={rectSwappingStrategy}
+              strategy={rectSortingStrategy}
             >
               <div
                 className={cn("grid gap-3", "grid-cols-2", "sm:grid-cols-3", "md:grid-cols-4", "lg:grid-cols-4", "xl:grid-cols-4")}
