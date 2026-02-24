@@ -37,7 +37,7 @@ import { toast } from "sonner";
 import { CardWizard } from "@/components/card-wizard";
 import {
   DndContext,
-  closestCenter,
+  closestCorners,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
@@ -516,24 +516,15 @@ export default function BoardPage() {
 
   const ordered = useLiveQuery(async () => {
     if (folderId === null) {
-      const folderCards = await db.cards
-        .where("type")
-        .equals("folder")
+      return await db.cards
         .filter((c) => c.parentId === null)
         .sortBy("order");
-      const speak = await db.cards
-        .where("type")
-        .equals("speak")
-        .filter((c) => c.parentId === null)
-        .sortBy("order");
-      return [...folderCards, ...speak];
     }
 
-    const folderCards = await db.cards
-      .where({ parentId: folderId, type: "folder" })
+    return await db.cards
+      .where("parentId")
+      .equals(folderId)
       .sortBy("order");
-    const speak = await db.cards.where({ parentId: folderId, type: "speak" }).sortBy("order");
-    return [...folderCards, ...speak];
   }, [folderId]);
 
   const currentFolder = useLiveQuery(async () => {
@@ -948,7 +939,7 @@ export default function BoardPage() {
         <main data-testid="main">
           <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={closestCorners}
             onDragEnd={handleDragEnd}
           >
             <SortableContext
