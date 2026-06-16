@@ -9,21 +9,11 @@ import { SymbolPicker } from "@/components/symbol-picker";
 import { Recorder } from "./audio-recorder";
 import { useObjectUrl } from "@/hooks/use-object-url";
 import { useLanguage } from "@/lib/i18n";
+import { compressImage } from "@/lib/image";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ArrowRight, Upload, Trash2, Check, Music, Folder as FolderIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Upload, Check, Music, Folder as FolderIcon } from "lucide-react";
 import { toast } from "sonner";
-
-type CardType = "speak" | "folder";
-
-type CardRecord = {
-    id: string;
-    parentId: string | null;
-    type: CardType;
-    label: string;
-    image: Blob | null;
-    audio: Blob | null;
-    order: number;
-};
+import type { CardRecord, CardType } from "@shared/aac";
 
 // Wizard Steps
 // 1. Image
@@ -170,9 +160,9 @@ export function CardWizard({
                                         type="file"
                                         accept="image/*"
                                         className="hidden"
-                                        onChange={(e) => {
+                                        onChange={async (e) => {
                                             const f = e.target.files?.[0];
-                                            if (f) setImage(f);
+                                            if (f) setImage(await compressImage(f));
                                         }}
                                     />
                                 </TabsContent>

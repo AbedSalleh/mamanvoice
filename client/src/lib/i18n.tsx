@@ -82,6 +82,25 @@ export const translations = {
         "toast.invalid_backup": "Invalid backup file",
         "toast.backup_imported": "Backup imported",
         "toast.import_failed": "Could not import backup",
+        "toast.storage_error": "Could not save — device storage may be full.",
+
+        // Confirm dialogs
+        "confirm.delete.title": "Delete this card?",
+        "confirm.delete.desc": "This cannot be undone.",
+        "confirm.delete.folder.title": "Delete this folder?",
+        "confirm.delete.folder.desc": "This will permanently delete {count} item(s) inside it. This cannot be undone.",
+
+        // Speech settings
+        "settings.speech.title": "Speech (Text-to-Speech)",
+        "settings.speech.subtitle": "Used when a card has no recorded audio.",
+        "settings.speech.rate": "Speed",
+        "settings.speech.pitch": "Pitch",
+        "settings.speech.volume": "Volume",
+        "settings.speech.voice": "Voice",
+        "settings.speech.voice.default": "Device default",
+        "settings.speech.reset": "Reset to defaults",
+        "settings.speech.test": "Test voice",
+        "settings.speech.test_phrase": "Hello, this is MamanVoice.",
     },
     ms: {
         "app.title": "MamanVoice",
@@ -162,13 +181,35 @@ export const translations = {
         "toast.invalid_backup": "Fail sandaran tidak sah",
         "toast.backup_imported": "Sandaran diimport",
         "toast.import_failed": "Gagal mengimport sandaran",
+        "toast.storage_error": "Tidak dapat simpan — storan peranti mungkin penuh.",
+
+        // Confirm dialogs
+        "confirm.delete.title": "Padam kad ini?",
+        "confirm.delete.desc": "Tindakan ini tidak boleh dibatalkan.",
+        "confirm.delete.folder.title": "Padam folder ini?",
+        "confirm.delete.folder.desc": "Ini akan memadam {count} item di dalamnya secara kekal. Tindakan ini tidak boleh dibatalkan.",
+
+        // Speech settings
+        "settings.speech.title": "Pertuturan (Teks-ke-Suara)",
+        "settings.speech.subtitle": "Digunakan apabila kad tiada audio rakaman.",
+        "settings.speech.rate": "Kelajuan",
+        "settings.speech.pitch": "Nada",
+        "settings.speech.volume": "Kelantangan",
+        "settings.speech.voice": "Suara",
+        "settings.speech.voice.default": "Lalai peranti",
+        "settings.speech.reset": "Set semula lalai",
+        "settings.speech.test": "Uji suara",
+        "settings.speech.test_phrase": "Helo, ini MamanVoice.",
     }
 } as const;
+
+type TranslationKey = keyof typeof translations["en"];
+type TranslateParams = Record<string, string | number>;
 
 type LanguageContextType = {
     language: Language;
     setLanguage: (lang: Language) => void;
-    t: (key: keyof typeof translations["en"]) => string;
+    t: (key: TranslationKey, params?: TranslateParams) => string;
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -183,8 +224,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("mamanvoice-lang", language);
     }, [language]);
 
-    const t = (key: keyof typeof translations["en"]) => {
-        return translations[language][key] || key;
+    const t = (key: TranslationKey, params?: TranslateParams) => {
+        const template: string = translations[language][key] || key;
+        if (!params) return template;
+        return template.replace(/\{(\w+)\}/g, (_, name) =>
+            name in params ? String(params[name]) : `{${name}}`,
+        );
     };
 
     return (

@@ -27,7 +27,7 @@ export default defineConfig({
                 theme_color: "#ffffff",
                 background_color: "#ffffff",
                 display: "standalone",
-                orientation: "landscape",
+                orientation: "any",
                 icons: [
                     {
                         src: "pwa-192x192.png",
@@ -58,6 +58,19 @@ export default defineConfig({
     build: {
         outDir: path.resolve(__dirname, "dist/public"),
         emptyOutDir: true,
+        chunkSizeWarningLimit: 800,
+        rollupOptions: {
+            output: {
+                // Split heavy vendor code so the main app chunk stays small and
+                // browser caching is more effective across deploys.
+                manualChunks: {
+                    "react-vendor": ["react", "react-dom", "wouter"],
+                    "dnd-vendor": ["@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
+                    "motion-vendor": ["framer-motion"],
+                    "db-vendor": ["dexie", "dexie-react-hooks"],
+                },
+            },
+        },
     },
     base: isCapacitor ? "./" : "/mamanvoice/",
 });

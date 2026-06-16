@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useRoute } from "wouter";
-import Dexie, { type Table } from "dexie";
 import { useLiveQuery } from "dexie-react-hooks";
-import { v4 as uuidv4 } from "uuid";
-import { useLanguage, type Language } from "@/lib/i18n";
-import { useObjectUrl } from "@/hooks/use-object-url";
-import { TextToSpeech } from "@capacitor-community/text-to-speech";
-import { Capacitor } from "@capacitor/core";
+import { useLanguage } from "@/lib/i18n";
 import {
   Settings,
   ShieldCheck,
@@ -28,6 +23,25 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { CardWizard } from "@/components/card-wizard";
+import { ConfirmDialog, type ConfirmState } from "@/components/confirm-dialog";
+import { SpeechSettings } from "@/components/speech-settings";
+import { useObjectUrl } from "@/hooks/use-object-url";
+import { useSettings } from "@/lib/settings";
+import { speak } from "@/lib/speech";
+import {
+  addCard,
+  countDescendants,
+  deleteCardCascade,
+  exportData,
+  FolderNotEmptyError,
+  getCard,
+  importData,
+  listChildren,
+  moveCard,
+  seedIfEmpty,
+  updateCard,
+} from "@/lib/db";
+import type { CardRecord } from "@shared/aac";
 import {
   DndContext,
   closestCorners,
@@ -36,74 +50,15 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
+  type DragEndEvent,
+} from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   rectSortingStrategy,
   useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-
-type CardType = "speak" | "folder";
-
-type CardRecord = {
-  id: string;
-  parentId: string | null;
-  type: CardType;
-  label: string;
-  image: Blob | null;
-  audio: Blob | null;
-  order: number;
-};
-
-class AACDexie extends Dexie {
-  cards!: Table<CardRecord, string>;
-
-  constructor() {
-    super("aac-db");
-    this.version(1).stores({
-      cards: "id, parentId, type, order",
-    });
-  }
-}
-
-const db = new AACDexie();
-
-// Guards the one-time seeding so it does not re-run a DB count on every
-// navigation (BoardPage remounts per route via AnimatePresence key).
-let seedAttempted = false;
-
-async function blobToBase64(blob: Blob): Promise<string> {
-  return await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error("Failed to read file"));
-    reader.onload = () => {
-      const res = String(reader.result || "");
-      const base64 = res.includes(",") ? res.split(",")[1] : res;
-      resolve(base64);
-    };
-    reader.readAsDataURL(blob);
-  });
-}
-
-function base64ToBlob(base64: string, mime = "application/octet-stream") {
-  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-  return new Blob([bytes], { type: mime });
-}
-
-type BackupCard = Omit<CardRecord, "image" | "audio"> & {
-  image: { base64: string; type: string } | null;
-  audio: { base64: string; type: string } | null;
-};
-
-type BackupFile = {
-  version: 1;
-  exportedAt: string;
-  cards: BackupCard[];
-};
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 function useTripleTap(onTrigger: () => void) {
   const tapCount = useRef(0);
@@ -142,40 +97,6 @@ function useLongPress(onTrigger: () => void, ms = 650) {
   return { start, clear };
 }
 
-const TTS_LANG: Record<Language, string> = {
-  en: "en-US",
-  ms: "ms-MY",
-};
-
-function speakFallback(text: string, language: Language) {
-  if (!text) return;
-
-  const lang = TTS_LANG[language] ?? "en-US";
-
-  // Use native TTS on Android/iOS, Web Speech API on browsers
-  if (Capacitor.isNativePlatform()) {
-    TextToSpeech.speak({
-      text,
-      rate: 0.95,
-      pitch: 1.0,
-      lang,
-    }).catch(() => {
-      // Fallback silently if TTS fails
-    });
-  } else {
-    try {
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 0.95;
-      utter.pitch = 1.0;
-      utter.lang = lang;
-      window.speechSynthesis.speak(utter);
-    } catch {
-      // ignore
-    }
-  }
-}
-
 function AACCardButton({
   card,
   isEditMode,
@@ -202,7 +123,7 @@ function AACCardButton({
     transform: CSS.Translate.toString(transform),
     transition,
     zIndex: isDragging ? 50 : 1,
-    position: 'relative' as const,
+    position: "relative" as const,
   };
 
   const imgUrl = useObjectUrl(card.image);
@@ -237,10 +158,12 @@ function AACCardButton({
           "flex flex-col items-stretch",
           "transition-transform duration-150",
           "active:scale-[0.99]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-[28px]",
           isFolder
             ? "bg-[linear-gradient(135deg,hsl(var(--secondary))/0.20,transparent_55%)]"
             : "bg-[linear-gradient(135deg,hsl(var(--primary))/0.16,transparent_55%)]",
         )}
+        aria-label={isFolder ? `${card.label} — ${t("editor.type.folder")}` : card.label}
         data-testid={`button-open-${card.id}`}
       >
         <div
@@ -257,7 +180,7 @@ function AACCardButton({
           {imgUrl ? (
             <img
               src={imgUrl}
-              alt={card.label}
+              alt=""
               className="h-full w-full object-cover"
               loading="eager"
               decoding="async"
@@ -326,7 +249,6 @@ function AACCardButton({
         </div>
       </button>
 
-
       {isEditMode ? (
         <div className="absolute top-3 right-3 flex gap-2" data-testid={`controls-${card.id}`}>
           <button
@@ -381,7 +303,6 @@ function AACCardButton({
   );
 }
 
-
 function SettingsModal({
   open,
   onOpenChange,
@@ -398,7 +319,7 @@ function SettingsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg" data-testid="modal-settings">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto" data-testid="modal-settings">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2" data-testid="title-settings">
             <ShieldCheck className="h-5 w-5" />
@@ -407,7 +328,6 @@ function SettingsModal({
         </DialogHeader>
 
         <div className="space-y-4">
-
           <div className="rounded-2xl border bg-card p-4">
             <div className="font-semibold mb-3">{t("settings.language")}</div>
             <div className="grid grid-cols-2 gap-2">
@@ -427,6 +347,8 @@ function SettingsModal({
               </Button>
             </div>
           </div>
+
+          <SpeechSettings />
 
           <div className="rounded-2xl border bg-card p-4" data-testid="panel-backup">
             <div className="font-semibold" data-testid="text-backup-title">
@@ -486,7 +408,6 @@ function SettingsModal({
   );
 }
 
-
 export default function BoardPage() {
   const [, params] = useRoute("/folder/:id");
   const folderId = params?.id ?? null;
@@ -497,8 +418,10 @@ export default function BoardPage() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<CardRecord | null>(null);
   const [headerVisible, setHeaderVisible] = useState(true);
+  const [confirm, setConfirm] = useState<ConfirmState | null>(null);
 
   const { t, language } = useLanguage();
+  const { tts } = useSettings();
 
   const toggleMode = useCallback(() => {
     setIsEditMode((v) => {
@@ -511,92 +434,33 @@ export default function BoardPage() {
   const longPress = useLongPress(toggleMode);
   const tripleTap = useTripleTap(toggleMode);
 
-  const ordered = useLiveQuery(async () => {
-    if (folderId === null) {
-      return await db.cards
-        .filter((c) => c.parentId === null)
-        .sortBy("order");
-    }
-
-    return await db.cards
-      .where("parentId")
-      .equals(folderId)
-      .sortBy("order");
-  }, [folderId]);
+  const ordered = useLiveQuery(() => listChildren(folderId), [folderId]);
 
   const currentFolder = useLiveQuery(async () => {
     if (!folderId) return null;
-    return await db.cards.get(folderId);
+    return await getCard(folderId);
   }, [folderId]);
 
   useEffect(() => {
-    if (seedAttempted) return;
-    seedAttempted = true;
-    (async () => {
-      const count = await db.cards.count();
-      if (count > 0) return;
-      const seed: CardRecord[] = [
-        {
-          id: uuidv4(),
-          parentId: null,
-          type: "speak",
-          label: "Hi",
-          image: null,
-          audio: null,
-          order: 1,
-        },
-        {
-          id: uuidv4(),
-          parentId: null,
-          type: "speak",
-          label: "More",
-          image: null,
-          audio: null,
-          order: 2,
-        },
-        {
-          id: uuidv4(),
-          parentId: null,
-          type: "speak",
-          label: "Help",
-          image: null,
-          audio: null,
-          order: 3,
-        },
-        {
-          id: uuidv4(),
-          parentId: null,
-          type: "folder",
-          label: "Food",
-          image: null,
-          audio: null,
-          order: 4,
-        },
-      ];
-      await db.cards.bulkAdd(seed);
-    })();
+    void seedIfEmpty();
   }, []);
 
   const handleOpen = async (card: CardRecord) => {
     if (isEditMode) return;
 
-    // Play Audio or TTS (for both Folders and Cards)
+    // Play recorded audio if present, otherwise fall back to TTS.
     if (card.audio) {
       const url = URL.createObjectURL(card.audio);
       const audio = new Audio(url);
       audio.volume = 1;
-      // Revoke once playback finishes (or errors) so clips longer than a
-      // couple of seconds are not cut off by a fixed timer.
       const cleanup = () => URL.revokeObjectURL(url);
       audio.addEventListener("ended", cleanup, { once: true });
       audio.addEventListener("error", cleanup, { once: true });
-      // We don't await here to prevent blocking navigation if audio fails or lags
       audio.play().catch(cleanup);
     } else {
-      speakFallback(card.label, language);
+      speak(card.label, language, tts);
     }
 
-    // Navigate if folder
     if (card.type === "folder") {
       setLocation(`/folder/${card.id}`);
     }
@@ -613,148 +477,93 @@ export default function BoardPage() {
   };
 
   const saveCard = async (data: Omit<CardRecord, "id"> & { id?: string }) => {
-    const isUpdate = Boolean(data.id);
-    const id = data.id ?? uuidv4();
-
-    // Prevent orphaning children: a non-empty folder cannot be turned into a
-    // speak card, otherwise its children become unreachable and undeletable.
-    if (isUpdate && data.type !== "folder") {
-      const existing = await db.cards.get(id);
-      if (existing?.type === "folder") {
-        const childCount = await db.cards.where("parentId").equals(id).count();
-        if (childCount > 0) {
-          toast.error(t("toast.folder_not_empty"));
-          return;
-        }
+    try {
+      if (data.id) {
+        await updateCard(data.id, {
+          type: data.type,
+          label: data.label,
+          image: data.image,
+          audio: data.audio,
+        });
+        toast.success(t("toast.updated"));
+      } else {
+        await addCard({
+          parentId: data.parentId,
+          type: data.type,
+          label: data.label,
+          image: data.image,
+          audio: data.audio,
+        });
+        toast.success(t("toast.added"));
+      }
+      setEditorOpen(false);
+    } catch (err) {
+      if (err instanceof FolderNotEmptyError) {
+        toast.error(t("toast.folder_not_empty"));
+      } else {
+        toast.error(t("toast.storage_error"));
       }
     }
-
-    const record: CardRecord = {
-      id,
-      parentId: data.parentId,
-      type: data.type,
-      label: data.label,
-      image: data.image,
-      audio: data.audio,
-      order: data.order,
-    };
-
-    if (isUpdate) {
-      await db.cards.put(record);
-      toast.success(t("toast.updated"));
-    } else {
-      await db.cards.add(record);
-      toast.success(t("toast.added"));
-    }
-
-    setEditorOpen(false);
   };
 
-  const deleteCard = async (id: string) => {
-    const card = await db.cards.get(id);
-    if (!card) return;
-
-    if (card.type === "folder") {
-      const children = await db.cards.where("parentId").equals(id).toArray();
-      if (children.length > 0) {
-        toast.error(t("toast.folder_not_empty"));
-        return;
-      }
+  const performDelete = async (id: string) => {
+    try {
+      await deleteCardCascade(id);
+      toast.success(t("toast.deleted"));
+    } catch {
+      toast.error(t("toast.storage_error"));
     }
+  };
 
-    await db.cards.delete(id);
-    toast.success(t("toast.deleted"));
+  const requestDelete = async (card: CardRecord) => {
+    if (card.type === "folder") {
+      const count = await countDescendants(card.id);
+      setConfirm({
+        title: t("confirm.delete.folder.title"),
+        description: count > 0 ? t("confirm.delete.folder.desc", { count }) : t("confirm.delete.desc"),
+        destructive: true,
+        onConfirm: () => void performDelete(card.id),
+      });
+    } else {
+      setConfirm({
+        title: t("confirm.delete.title"),
+        description: t("confirm.delete.desc"),
+        destructive: true,
+        onConfirm: () => void performDelete(card.id),
+      });
+    }
   };
 
   const exportBackup = async () => {
-    const all = await db.cards.toArray();
-    const cardsForBackup: BackupCard[] = [];
-
-    for (const c of all) {
-      const image = c.image
-        ? {
-          base64: await blobToBase64(c.image),
-          type: c.image.type || "application/octet-stream",
-        }
-        : null;
-      const audio = c.audio
-        ? {
-          base64: await blobToBase64(c.audio),
-          type: c.audio.type || "application/octet-stream",
-        }
-        : null;
-      cardsForBackup.push({
-        id: c.id,
-        parentId: c.parentId,
-        type: c.type,
-        label: c.label,
-        order: c.order,
-        image,
-        audio,
-      });
+    try {
+      const payload = await exportData();
+      const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "mamanvoice-backup.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success(t("toast.backup_exported"));
+    } catch {
+      toast.error(t("toast.import_failed"));
     }
-
-    const payload: BackupFile = {
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      cards: cardsForBackup,
-    };
-
-    const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "mamanvoice-backup.json";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-
-    toast.success(t("toast.backup_exported"));
   };
 
   const importBackup = async (file: File) => {
     try {
-      const text = await file.text();
-      const parsed = JSON.parse(text) as BackupFile;
-
-      if (!parsed || parsed.version !== 1 || !Array.isArray(parsed.cards)) {
+      const parsed = JSON.parse(await file.text());
+      const ok = await importData(parsed);
+      if (!ok) {
         toast.error(t("toast.invalid_backup"));
         return;
       }
-
-      const isValidCard = (c: any): c is BackupCard =>
-        c != null &&
-        typeof c.id === "string" &&
-        (c.type === "speak" || c.type === "folder") &&
-        typeof c.label === "string" &&
-        typeof c.order === "number" &&
-        (c.parentId === null || c.parentId === undefined || typeof c.parentId === "string");
-
-      if (!parsed.cards.every(isValidCard)) {
-        toast.error(t("toast.invalid_backup"));
-        return;
-      }
-
-      const nextCards: CardRecord[] = parsed.cards.map((c) => ({
-        id: c.id,
-        parentId: c.parentId ?? null,
-        type: c.type,
-        label: c.label,
-        order: c.order,
-        image: c.image ? base64ToBlob(c.image.base64, c.image.type) : null,
-        audio: c.audio ? base64ToBlob(c.audio.base64, c.audio.type) : null,
-      }));
-
-      await db.transaction("rw", db.cards, async () => {
-        await db.cards.clear();
-        await db.cards.bulkAdd(nextCards);
-      });
-
       toast.success(t("toast.backup_imported"));
       setSettingsOpen(false);
-      // Live queries refresh automatically; return to root so we are not left
-      // inside a folder that may no longer exist after the restore.
+      // Live queries refresh automatically; return to root in case we were
+      // inside a folder that no longer exists after the restore.
       setLocation("/");
     } catch {
       toast.error(t("toast.import_failed"));
@@ -762,51 +571,21 @@ export default function BoardPage() {
   };
 
   const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 200,
-        tolerance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      if (!ordered) return;
-
-      const oldIndex = ordered.findIndex((item) => item.id === active.id);
-      const newIndex = ordered.findIndex((item) => item.id === over.id);
-
-      const newOrdered = arrayMove(ordered, oldIndex, newIndex);
-
-      // Update only the `order` field so we don't rewrite image/audio Blobs
-      // for every card on each drop.
-      await db.cards.bulkUpdate(
-        newOrdered.map((item, index) => ({
-          key: item.id,
-          changes: { order: index + 1 },
-        })),
-      );
-    }
+    if (!over || active.id === over.id || !ordered) return;
+    await moveCard(ordered, String(active.id), String(over.id));
   };
 
   const headerTitle = useMemo(() => {
     if (!folderId) return t("app.title");
     return currentFolder?.label ?? t("editor.type.folder");
   }, [currentFolder, folderId, t]);
-  const isRoot = !folderId;
-
-
 
   return (
     <motion.div
@@ -861,7 +640,7 @@ export default function BoardPage() {
           animate={{ y: headerVisible ? 0 : -120 }}
           transition={{ type: "spring", damping: 20, stiffness: 300 }}
           style={{
-            position: headerVisible ? 'relative' : 'absolute',
+            position: headerVisible ? "relative" : "absolute",
             top: headerVisible ? undefined : 0,
             left: headerVisible ? undefined : 0,
             right: headerVisible ? undefined : 0,
@@ -872,7 +651,6 @@ export default function BoardPage() {
         >
           {/* Left: Title/Back */}
           <div className={cn("flex items-center gap-3 flex-1", folderId && "pl-16 sm:pl-24 transition-all")}>
-
             <div className="leading-tight">
               <div className="text-sm text-muted-foreground" data-testid="text-mode">
                 {isEditMode ? t("mode.parent") : t("mode.child")}
@@ -900,7 +678,6 @@ export default function BoardPage() {
           </Button>
 
           {/* Right: Controls */}
-
           <div className="flex items-center gap-2">
             {isEditMode ? (
               <>
@@ -961,19 +738,9 @@ export default function BoardPage() {
           </div>
         </motion.header>
 
-
-
-
         <main data-testid="main">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCorners}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={(ordered ?? []).map(c => c.id)}
-              strategy={rectSortingStrategy}
-            >
+          <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
+            <SortableContext items={(ordered ?? []).map((c) => c.id)} strategy={rectSortingStrategy}>
               <div
                 className={cn("grid gap-3", "grid-cols-2", "sm:grid-cols-3", "md:grid-cols-4", "lg:grid-cols-4", "xl:grid-cols-4")}
                 data-testid="grid-cards"
@@ -985,7 +752,7 @@ export default function BoardPage() {
                     isEditMode={isEditMode}
                     onOpen={() => handleOpen(c)}
                     onEdit={() => openEdit(c)}
-                    onDelete={() => deleteCard(c.id)}
+                    onDelete={() => void requestDelete(c)}
                   />
                 ))}
               </div>
@@ -1017,12 +784,14 @@ export default function BoardPage() {
           initial={editingCard}
           parentId={folderId}
           onSave={saveCard}
-          onDelete={async () => {
+          onDelete={() => {
             if (!editingCard) return;
-            await deleteCard(editingCard.id);
             setEditorOpen(false);
+            void requestDelete(editingCard);
           }}
         />
+
+        <ConfirmDialog state={confirm} onClose={() => setConfirm(null)} />
       </div>
     </motion.div>
   );

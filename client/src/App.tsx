@@ -8,6 +8,7 @@ import BoardPage from "./pages/board";
 import { useHashLocation } from "@/hooks/use-hash-location";
 import { AnimatePresence } from "framer-motion";
 import { LanguageProvider } from "@/lib/i18n";
+import { SettingsProvider } from "@/lib/settings";
 
 function AnimatedRoutes() {
   const [location] = useLocation();
@@ -35,10 +36,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+        <SettingsProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </SettingsProvider>
       </LanguageProvider>
     </QueryClientProvider>
   );
