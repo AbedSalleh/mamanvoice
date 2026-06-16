@@ -3,7 +3,8 @@ import { useLocation, useRoute } from "wouter";
 import Dexie, { type Table } from "dexie";
 import { useLiveQuery } from "dexie-react-hooks";
 import { v4 as uuidv4 } from "uuid";
-import { useLanguage } from "@/lib/i18n";
+import { useLanguage, type Language } from "@/lib/i18n";
+import { useObjectUrl } from "@/hooks/use-object-url";
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
 import { Capacitor } from "@capacitor/core";
 import {
@@ -13,10 +14,7 @@ import {
   Folder as FolderIcon,
   Download,
   Upload,
-  Mic,
-  Square,
   ArrowLeft,
-  Search,
   Plus,
   Pencil,
   Trash2,
@@ -27,12 +25,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SymbolPicker } from "@/components/symbol-picker";
 import { toast } from "sonner";
 import { CardWizard } from "@/components/card-wizard";
 import {
@@ -41,7 +34,6 @@ import {
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
-  PointerSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -80,10 +72,9 @@ class AACDexie extends Dexie {
 
 const db = new AACDexie();
 
-function formatDateStamp(d: Date) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
-}
+// Guards the one-time seeding so it does not re-run a DB count on every
+// navigation (BoardPage remounts per route via AnimatePresence key).
+let seedAttempted = false;
 
 async function blobToBase64(blob: Blob): Promise<string> {
   return await new Promise((resolve, reject) => {
@@ -151,9 +142,15 @@ function useLongPress(onTrigger: () => void, ms = 650) {
   return { start, clear };
 }
 
-import { useObjectUrl } from "@/hooks/use-object-url";
-function speakFallback(text: string) {
+const TTS_LANG: Record<Language, string> = {
+  en: "en-US",
+  ms: "ms-MY",
+};
+
+function speakFallback(text: string, language: Language) {
   if (!text) return;
+
+  const lang = TTS_LANG[language] ?? "en-US";
 
   // Use native TTS on Android/iOS, Web Speech API on browsers
   if (Capacitor.isNativePlatform()) {
@@ -161,7 +158,7 @@ function speakFallback(text: string) {
       text,
       rate: 0.95,
       pitch: 1.0,
-      lang: "en-US",
+      lang,
     }).catch(() => {
       // Fallback silently if TTS fails
     });
@@ -171,7 +168,7 @@ function speakFallback(text: string) {
       const utter = new SpeechSynthesisUtterance(text);
       utter.rate = 0.95;
       utter.pitch = 1.0;
-      utter.lang = "en-US";
+      utter.lang = lang;
       window.speechSynthesis.speak(utter);
     } catch {
       // ignore
@@ -499,9 +496,9 @@ export default function BoardPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<CardRecord | null>(null);
-  const [headerVisible, setHeaderVisible] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const toggleMode = useCallback(() => {
     setIsEditMode((v) => {
@@ -533,6 +530,8 @@ export default function BoardPage() {
   }, [folderId]);
 
   useEffect(() => {
+    if (seedAttempted) return;
+    seedAttempted = true;
     (async () => {
       const count = await db.cards.count();
       if (count > 0) return;
@@ -584,17 +583,17 @@ export default function BoardPage() {
     // Play Audio or TTS (for both Folders and Cards)
     if (card.audio) {
       const url = URL.createObjectURL(card.audio);
-      try {
-        const audio = new Audio(url);
-        audio.volume = 1;
-        // We don't await here to prevent blocking navigation if audio fails or lags
-        audio.play().catch(() => { });
-      } finally {
-        // Keep the URL alive long enough for playback to start
-        setTimeout(() => URL.revokeObjectURL(url), 2000);
-      }
+      const audio = new Audio(url);
+      audio.volume = 1;
+      // Revoke once playback finishes (or errors) so clips longer than a
+      // couple of seconds are not cut off by a fixed timer.
+      const cleanup = () => URL.revokeObjectURL(url);
+      audio.addEventListener("ended", cleanup, { once: true });
+      audio.addEventListener("error", cleanup, { once: true });
+      // We don't await here to prevent blocking navigation if audio fails or lags
+      audio.play().catch(cleanup);
     } else {
-      speakFallback(card.label);
+      speakFallback(card.label, language);
     }
 
     // Navigate if folder
@@ -616,6 +615,19 @@ export default function BoardPage() {
   const saveCard = async (data: Omit<CardRecord, "id"> & { id?: string }) => {
     const isUpdate = Boolean(data.id);
     const id = data.id ?? uuidv4();
+
+    // Prevent orphaning children: a non-empty folder cannot be turned into a
+    // speak card, otherwise its children become unreachable and undeletable.
+    if (isUpdate && data.type !== "folder") {
+      const existing = await db.cards.get(id);
+      if (existing?.type === "folder") {
+        const childCount = await db.cards.where("parentId").equals(id).count();
+        if (childCount > 0) {
+          toast.error(t("toast.folder_not_empty"));
+          return;
+        }
+      }
+    }
 
     const record: CardRecord = {
       id,
@@ -711,6 +723,19 @@ export default function BoardPage() {
         return;
       }
 
+      const isValidCard = (c: any): c is BackupCard =>
+        c != null &&
+        typeof c.id === "string" &&
+        (c.type === "speak" || c.type === "folder") &&
+        typeof c.label === "string" &&
+        typeof c.order === "number" &&
+        (c.parentId === null || c.parentId === undefined || typeof c.parentId === "string");
+
+      if (!parsed.cards.every(isValidCard)) {
+        toast.error(t("toast.invalid_backup"));
+        return;
+      }
+
       const nextCards: CardRecord[] = parsed.cards.map((c) => ({
         id: c.id,
         parentId: c.parentId ?? null,
@@ -728,7 +753,9 @@ export default function BoardPage() {
 
       toast.success(t("toast.backup_imported"));
       setSettingsOpen(false);
-      window.location.reload();
+      // Live queries refresh automatically; return to root so we are not left
+      // inside a folder that may no longer exist after the restore.
+      setLocation("/");
     } catch {
       toast.error(t("toast.import_failed"));
     }
@@ -762,13 +789,14 @@ export default function BoardPage() {
 
       const newOrdered = arrayMove(ordered, oldIndex, newIndex);
 
-      // Update order in database
-      const updates = newOrdered.map((item, index) => ({
-        ...item,
-        order: index + 1,
-      }));
-
-      await db.cards.bulkPut(updates);
+      // Update only the `order` field so we don't rewrite image/audio Blobs
+      // for every card on each drop.
+      await db.cards.bulkUpdate(
+        newOrdered.map((item, index) => ({
+          key: item.id,
+          changes: { order: index + 1 },
+        })),
+      );
     }
   };
 

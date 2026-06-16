@@ -20,6 +20,16 @@ const fetchSymbols = async (): Promise<SymbolItem[]> => {
     return res.json();
 };
 
+// Strip potentially executable content from SVG markup before it is injected
+// via dangerouslySetInnerHTML (scripts, inline event handlers, js: URLs).
+const sanitizeSvg = (svg: string): string =>
+    svg
+        .replace(/<script[\s\S]*?<\/script>/gi, "")
+        .replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, "")
+        .replace(/\son\w+\s*=\s*"[^"]*"/gi, "")
+        .replace(/\son\w+\s*=\s*'[^']*'/gi, "")
+        .replace(/(href|xlink:href)\s*=\s*(['"])\s*javascript:[^'"]*\2/gi, "");
+
 export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
     const [enabled, setEnabled] = useState(false);
     const [search, setSearch] = useState("");
@@ -42,7 +52,7 @@ export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
 
     const handleSelect = (svgString: string) => {
         // Convert SVG string to Blob
-        const blob = new Blob([svgString], { type: "image/svg+xml" });
+        const blob = new Blob([sanitizeSvg(svgString)], { type: "image/svg+xml" });
         onSelect(blob);
     };
 
@@ -108,7 +118,7 @@ export function SymbolPicker({ onSelect }: { onSelect: (blob: Blob) => void }) {
                     >
                         <div
                             className="w-8 h-8 text-foreground"
-                            dangerouslySetInnerHTML={{ __html: s.svg }}
+                            dangerouslySetInnerHTML={{ __html: sanitizeSvg(s.svg) }}
                         />
                         <span className="text-[10px] text-muted-foreground font-medium truncate w-full px-1 text-center">
                             {s.name}
